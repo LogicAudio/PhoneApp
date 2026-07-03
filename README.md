@@ -1,6 +1,8 @@
 # PhoneApp
 
-Monorepo for Android mobile apps built with [Capacitor](https://capacitorjs.com): each app is plain web code (HTML/CSS/JS) wrapped into a native Android app. Structured Android-first but iOS-ready (Capacitor supports adding an `ios/` platform per app later).
+Monorepo for Android mobile apps built with [Capacitor](https://capacitorjs.com): each app is plain web code (HTML/CSS/JS) wrapped into a native Android app. Structured Android-first but iOS-ready (Capacitor supports adding an `ios/` platform per app later). Apps can also ship as PWAs via GitHub Pages.
+
+**EatWise (PWA) en production : https://logicaudio.github.io/PhoneApp/** — déployée automatiquement par GitHub Actions à chaque push touchant `apps/eatwise/www/`.
 
 ## Layout
 
