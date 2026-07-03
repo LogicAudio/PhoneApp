@@ -1,6 +1,5 @@
 ---
-status: in-progress
-priority: now
+status: done
 ---
 
 # Plan 06 — EatWise 3.20.0 : la sélection de Thomas (5 fonctionnalités du backlog)
@@ -44,4 +43,4 @@ Carte « Pour ton médecin » dans Données : bouton qui ouvre une page imprimab
 J-1/J-2, dernière analyse, disclaimer « suivi personnel, pas un avis médical ») — à imprimer
 en PDF depuis le navigateur.
 
-## P06.6 — Gate + déploiement · SAFE · low · ⏳ gate en cours
+## P06.6 — Gate + déploiement · SAFE · low · ✅ DONE (3.20.0 confirmée en prod)
