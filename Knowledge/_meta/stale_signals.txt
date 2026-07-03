@@ -1,0 +1,5 @@
+# Stale-signal denylist — read by scripts/check_knowledge.py (ADVISORY).
+# Format: trigger_regex | context_regex | negatable(yes/no) | why   (" | " separated)
+# Starts empty; every rename/removal that retires a term adds it here in the same commit.
+docs/SETUP.md |  | no | moved to Knowledge/setup.md (Plan 01)
+apps/eatwise/CLAUDE.md |  | no | rules moved to Knowledge/eatwise.md; only a pointer remains (Plan 01)

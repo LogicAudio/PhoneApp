@@ -12,7 +12,7 @@ read_when: Avant de toucher quoi que ce soit sous apps/eatwise/ — modèle de d
 > - l'enveloppe Capacitor (`android/`) reste disponible pour produire un APK, mais **la phase actuelle est la PWA** ;
 > - contrairement aux autres apps du monorepo, EatWise ne référence pas `shared/` : tout est inline dans `index.html` (choix assumé, voir ci-dessous).
 
-# EatWise — Guide du projet (CLAUDE.md)
+# EatWise — Guide du projet
 
 Application personnelle de suivi santé : **digestion (ballonnements)** + **douleurs de spondylarthrite ankylosante**. Elle relie ce qu'on mange, ce qu'on ressent, et fait ressortir les liens. Objectif de cette phase : passer d'un fichier HTML unique à une **PWA installable déployée sur GitHub Pages**.
 
