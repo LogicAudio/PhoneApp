@@ -48,3 +48,10 @@ distinctes). Confirmée en production (commit 9f967e3).
 Séparation nette des circuits : le prompt d'analyse (v3) ne demande plus de recettes (point
 supprimé, interdiction explicite, titre ## Recettes retiré) — l'onglet Recettes reste le seul
 circuit, en lecture directe. Golden recalé sur demande. Confirmée en production (ad0dd5c).
+
+## 2026-07-03 — Plan 09 done: EatWise 3.23.0/3.23.1 (libellés paramétrables + café)
+L'app devient multi-maladies : carte « Personnalisation des suivis » (symptôme rapide, suivi
+quotidien, case du matin, situation santé — champ additif labels), libellés propagés partout,
+prompt v4 avec détection de spécialité (dermatologie/rhumatologie/gastro selon les intitulés),
+golden recalé. Bouton « Buy me a coffee » (buymeacoffee.com/logicaudio) au footer et dans
+Données. En production (commit 6cecd29) après un incident intermittent GitHub Pages.

@@ -1,6 +1,5 @@
 ---
-status: in-progress
-priority: now
+status: done
 ---
 
 # Plan 09 — Libellés paramétrables (autres maladies : rougeurs, eczéma…)
@@ -37,4 +36,4 @@ du matin garde son sens par défaut), prompts d'analyse et de recettes (situatio
 Page créée par Thomas (buymeacoffee.com/logicaudio) : lien ☕ dans le footer + carte
 « Soutenir EatWise » dans Données. App gratuite, dons volontaires.
 
-## P09.3 — Docs + gate (golden recalé) + déploiement · SAFE · low · ⏳ gate OK, déploiement bloqué par un incident intermittent GitHub Pages (deploy-pages), relances en cours
+## P09.3 — Docs + gate (golden recalé) + déploiement · SAFE · low · ✅ DONE (3.23.1 en prod après 2 échecs deploy-pages transitoires côté GitHub, résolus par relances)
