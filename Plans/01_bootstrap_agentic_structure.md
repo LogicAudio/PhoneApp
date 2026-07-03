@@ -1,6 +1,5 @@
 ---
-status: in-progress
-priority: now
+status: done
 ---
 
 # Plan 01 — Bootstrap de la structure agentique (spec de coexistence §10)
@@ -48,31 +47,34 @@ PWA conservée.
 Knowledge/eatwise.md` (rules, `governs: apps/eatwise/`, corps verbatim) avec pointeur laissé sur
 place ; seeds `conventions.md` + `runbook.md` avec frontmatter §4.
 
-## P01.5 — `Plans/` · SAFE · low
+## P01.5 — `Plans/` · SAFE · low · ✅ DONE (commit ae2f677)
 
 Ce plan + `README.md` stub (sentinelles seules, boards générés en P01.7) + `CHANGELOG.md` vide.
-**Commit :** `Plan 01: Plans/ (plan 01, README stub, CHANGELOG)`
 
-## P01.6 — `Bugs/` · SAFE · low
+## P01.6 — `Bugs/` · SAFE · low · ✅ DONE (commit 99c6cef)
 
 `README.md` (table des bugs ouverts + légende sévérité) + `Solved/.gitkeep`.
-**Commit :** `Plan 01: Bugs/ (front page + Solved/)`
 
-## P01.7 — `scripts/` : gates déterministes · SAFE · low
+## P01.7 — `scripts/` : gates déterministes · SAFE · low · ✅ DONE (commit c75e413)
 
 Copie byte-identique depuis le repo canonique : `check_knowledge.py`, `check_plans.py`,
-`verify.sh`, `hooks/pre-commit`, `bootstrap.sh`. Fichier `Knowledge/_meta/stale_signals.txt`
-vide (donnée propre au repo). `git config core.hooksPath scripts/hooks` + génération des boards.
-**Commit :** `Plan 01: gates déterministes (moteurs copiés + hooks + boards)`
+`verify.sh`, `hooks/pre-commit`, `bootstrap.sh` (vérifiée par `diff`). Fichier
+`Knowledge/_meta/stale_signals.txt` créé avec les deux termes retirés par la migration
+(`docs/SETUP.md`, `apps/eatwise/CLAUDE.md`). `git config core.hooksPath scripts/hooks` +
+génération des boards.
 
-## P01.8 — Goldens du cœur fragile (eatwise) · SAFE (zéro changement de comportement) · medium
+## P01.8 — Goldens du cœur fragile (eatwise) · SAFE (zéro changement de comportement) · medium · ✅ DONE (commit 2bfd359)
 
-Jeu d'entrées figé + runner node (`scripts/eatwise_golden.mjs`) qui extrait les fonctions métier
-d'`index.html` (`tagsFromMeal`/`normFood`, fenêtre 4h, `computePain`, `applyImport`) et diffe
-leurs sorties JSON contre `scripts/goldens/`. Branché en stage 1 (BLOCKING) de `verify.sh` ;
-le pre-commit bloque quand `apps/eatwise/www/index.html` est stagé et que les goldens échouent.
-Mise à jour d'une baseline = délibérée, avec accord explicite de Thomas.
-**Commit :** `Plan 01: goldens eatwise + blocage pre-commit du cœur fragile`
+Jeu d'entrées figé (`scripts/goldens/eatwise_fixture.json`, résultats vérifiés à la main :
+bornes 240/241 min, sev<2 ignoré, seuil 3 jours, delta Gluten +4) + runner node
+(`scripts/eatwise_golden.mjs`) qui évalue le script d'`index.html` en sandbox `node:vm` et fige
+`normFood`/`tagsFromMeal`, `computeBloat`, `computePain` (champ `days` exclu — dépend du jour
+courant), `applyImport` (6 cas), `renderAnalysis`, `buildExport` (`todayISO` figé) contre
+`scripts/goldens/eatwise.json`. Branché en stage 1 (BLOCKING) de `verify.sh` ; le pre-commit
+bloque quand `apps/eatwise/www/index.html` est stagé et que les goldens échouent — testé en
+cassant volontairement le seuil de `computePain()` (goldens rouges, commit refusé), puis revert.
+Mise à jour d'une baseline = délibérée, avec accord explicite de Thomas
+(`node scripts/eatwise_golden.mjs --update`).
 
 ## Verification
 
