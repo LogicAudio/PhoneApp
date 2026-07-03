@@ -1,0 +1,14 @@
+{
+  "name": "EatWise",
+  "short_name": "EatWise",
+  "description": "Suivi digestion et douleurs, avec analyse des liens.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F1ECE0",
+  "theme_color": "#1F5C54",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

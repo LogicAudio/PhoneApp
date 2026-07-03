@@ -28,10 +28,10 @@ Monorepo of Android apps built with Capacitor. Each app is plain web code (HTML/
 
 ## Agent directives
 
-<!-- Thomas: paste your directives for how agents should work in this repo below. -->
-
+- **Exchanges with Thomas are in French** — direct and concise. Code comments and app UI language follow each app's own CLAUDE.md.
+- Each app can have its own `apps/<name>/CLAUDE.md` with app-specific directives (data model, business logic, versioning rules). **Read it before touching that app** — it takes precedence over generic conventions here.
 - Before large or destructive changes (deleting an app, rewriting shared scripts), state the plan and get confirmation.
 
 ## Current apps
 
-- **eatwise** — EatWise, nutrition app. Originated as a single HTML file from a claude.ai conversation.
+- **eatwise** — EatWise, personal health-tracking app (digestion + spondylarthritis pain), in French. A single self-contained `index.html` (vanilla JS, no build, no CDN — deliberate). Current phase: installable PWA deployed via GitHub Pages; the Capacitor/APK wrapper is secondary. Detailed directives: `apps/eatwise/CLAUDE.md` — read it first, it has strict data-compatibility and semver rules.

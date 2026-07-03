@@ -1,0 +1,39 @@
+/* Shared base styles for all apps.
+   Copied into each app's www/shared/ by the build/dev scripts —
+   edit here, never in an app's www/shared/ folder. */
+
+:root {
+  --color-bg: #ffffff;
+  --color-text: #1a1a2e;
+  --color-accent: #4f7cff;
+  --color-muted: #6b7280;
+  --radius: 12px;
+  --spacing: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #12121a;
+    --color-text: #f0f0f5;
+    --color-muted: #9ca3af;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* Keep content clear of notches and system bars */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+}

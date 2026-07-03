@@ -1,15 +1,24 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1F5C54">
   <title>EatWise</title>
-  <link rel="stylesheet" href="shared/base.css">
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon.svg" />
 </head>
 <body>
-  <main style="padding: var(--spacing); text-align: center;">
+  <main style="padding: 16px; text-align: center; font-family: -apple-system, sans-serif;">
     <h1>EatWise</h1>
-    <p>Placeholder — waiting for the real EatWise HTML from the claude.ai conversation.</p>
+    <p>Placeholder — en attente du vrai index.html (v3.13.0) depuis la conversation claude.ai.</p>
   </main>
+  <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  });
+}
+  </script>
 </body>
 </html>
