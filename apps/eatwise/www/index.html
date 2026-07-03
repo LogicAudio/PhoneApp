@@ -88,7 +88,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.25.1", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.26.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 var LLM_KEY="eatwise-llm";
 var LLMS={
@@ -303,6 +303,9 @@ function buildRecipePrompt(kind){
    +"Réponds en français, directement avec les 3 idées.";
 }
 function sendRecipe(kind){ copyAndOpenLLM(buildRecipePrompt(kind)); }
+function buildPhotoPrompt(){
+  return "Je joins (ou je prends) une photo de mon repas dans ce message. Identifie tous les aliments et boissons visibles et réponds UNIQUEMENT par une seule ligne : les ingrédients en français, séparés par des virgules (exemple : chou-fleur, oignon, bœuf, bière). Pas de phrase d'introduction, pas de puces, pas de commentaire — je collerai cette ligne telle quelle dans mon carnet alimentaire. Si un aliment est incertain, ajoute un point d'interrogation juste après (exemple : ricotta?).";
+}
 function fmtDelay(min){ if(min==null) return ""; var h=Math.floor(min/60), m=Math.round(min%60); if(h<=0) return m+" minutes"; return h+" heure"+(h>1?"s":"")+(m?" "+(m<10?"0":"")+m:""); }
 function sevLabel(v){ for(var i=0;i<SEV.length;i++){ if(SEV[i].v===v) return SEV[i].label; } return "Moyen"; }
 function buildReportBody(){
@@ -477,7 +480,7 @@ function logHTML(){
   var dt='<div class="row"><div style="flex:1"><label class="lab">Date</label><input type="date" class="field" data-field="date" value="'+state.date+'"></div>'+(state.kind!=="pain"?'<div style="width:120px"><label class="lab">Heure</label><input type="time" class="field" data-field="time" value="'+state.time+'"></div>':'')+'</div>';
   var form="";
   if(state.kind==="meal"){
-    form='<div style="margin-bottom:6px"><label class="lab">Repas / boisson</label><input class="field" data-field="meal" value="'+esc(state.meal)+'" placeholder="ex. chou-fleur, oignon, bœuf, Hoegaarden"></div>'
+    form='<div style="margin-bottom:6px"><div class="between" style="align-items:baseline;margin-bottom:2px"><label class="lab" style="margin-bottom:0">Repas / boisson</label><span data-act="photoMeal" style="font-size:12.5px;font-weight:600;color:var(--brand);cursor:pointer">📷 Photo → IA</span></div><input class="field" data-field="meal" value="'+esc(state.meal)+'" placeholder="ex. chou-fleur, oignon, bœuf, Hoegaarden"></div>'
       +'<div id="tagpreview" class="muted" style="font-size:12px;margin:0 0 16px">'+esc(tagPreviewText(state.meal))+'</div>'
       +'<button class="btn brand" data-act="addMeal">'+(state.editId?"Mettre à jour le repas":"Enregistrer le repas")+'</button>';
   } else if(state.kind==="symptom"){
@@ -641,6 +644,7 @@ app.addEventListener("click",function(e){
   else if(act==="printReport"){ try{ window.print(); }catch(e){} }
   else if(act==="sendClaude"){ sendToClaude(); }
   else if(act==="recipe"){ sendRecipe(val); }
+  else if(act==="photoMeal"){ copyAndOpenLLM(buildPhotoPrompt()); }
   else if(act==="llm"){ state.llm=val; store.set(LLM_KEY,val); render(); }
   else if(act==="openExport"){ state.showExport=true; state.copied=false; render(); }
   else if(act==="closeExport"){ state.showExport=false; render(); }

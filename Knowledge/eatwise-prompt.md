@@ -101,3 +101,13 @@ MES ENVIES / CONTRAINTES DU JOUR : {{champ libre, omis si vide}}
 MA DERNIÈRE ANALYSE ({{date}}) : {{texte, omis si aucune analyse}}
 
 Réponds en français, directement avec les 3 idées.
+
+---
+
+# Prompt Photo de repas (miroir de `buildPhotoPrompt()`) — depuis 3.26.0
+
+> Troisième prompt (bouton 📷 du formulaire Mangé, non couvert par le golden). L'utilisateur
+> ouvre son IA avec ce prompt copié/pré-rempli, y joint la photo du repas, et recolle la ligne
+> d'ingrédients dans le champ repas (le découpage en tags par virgules est natif).
+
+Je joins (ou je prends) une photo de mon repas dans ce message. Identifie tous les aliments et boissons visibles et réponds UNIQUEMENT par une seule ligne : les ingrédients en français, séparés par des virgules (exemple : chou-fleur, oignon, bœuf, bière). Pas de phrase d'introduction, pas de puces, pas de commentaire — je collerai cette ligne telle quelle dans mon carnet alimentaire. Si un aliment est incertain, ajoute un point d'interrogation juste après (exemple : ricotta?).
