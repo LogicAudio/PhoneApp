@@ -76,7 +76,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.24.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.24.1", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 var LLM_KEY="eatwise-llm";
 var LLMS={
@@ -527,6 +527,7 @@ function analyseHTML(){
     var hist=state.analysisHistory.map(function(hh){ return '<details style="margin:6px 0"><summary style="cursor:pointer;font-size:13px;color:var(--muted)">Analyse du '+esc(hh.date)+'</summary><div style="padding:4px 0 2px">'+renderAnalysis(hh.text)+'</div></details>'; }).join("");
     claudeBlock+='<div class="card"><span class="cardhd" style="font-size:15px">Analyses précédentes</span>'+hist+'</div>';
   }
+  claudeBlock+='<div class="card"><span class="cardhd">Pour ton médecin 🩺</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Un rapport imprimable (PDF via le menu d\'impression) : synthèse chiffrée, journal aliments-symptômes des 14 derniers jours, corrélations — à montrer en consultation.</p><button class="btn brand" data-act="report">Ouvrir le rapport imprimable</button></div>';
   var h='<div class="sectitle">'+LBL("fast")+'s</div>';
   if(b.avgDelay!=null) h+='<div class="card" style="background:var(--brand);color:#FFFFFF;border:none"><div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.85">Délai typique</div><div style="font-family:var(--serif);font-size:26px;font-weight:600">≈ '+b.avgDelay+' min après le déclencheur</div></div>';
   if(b.suspects.length===0) h+='<div class="card center muted">Continue d\'enregistrer tes repas et ton ressenti.</div>';
@@ -583,7 +584,6 @@ function dataHTML(){
   +'<label class="lab">Case du matin (défaut : Raideur matinale)</label><input class="field" data-field="lblFlag" value="'+esc((state.labels||{}).flag||"")+'" placeholder="Raideur matinale" style="margin-bottom:10px">'
   +'<label class="lab">Décris ton problème de santé (transmis à l\'IA)</label><textarea class="field" data-field="lblCond" placeholder="ex. '+esc(DEFAULT_LABELS.condition)+'" style="min-height:76px;font-size:14px">'+esc((state.labels||{}).condition||"")+'</textarea><p class="muted" style="font-size:11.5px;margin:6px 0 0">Sois précis : symptômes, localisation, ancienneté, diagnostics posés… L\'IA s\'en sert pour cibler la spécialité et les bonnes références.</p></div>'
   +'<div class="card"><span class="cardhd">Soutenir EatWise ☕</span><p class="muted" style="font-size:13px;margin:4px 0 12px">EatWise est gratuite et sans publicité. Si elle t\'aide, tu peux offrir un café à son créateur.</p><a class="btn outline" style="display:block;text-align:center;text-decoration:none" href="https://buymeacoffee.com/logicaudio" target="_blank" rel="noopener">☕ Buy me a coffee</a></div>'
-  +'<div class="card"><span class="cardhd">Pour ton médecin</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Un rapport imprimable (PDF via le menu d\'impression du navigateur) à montrer à ton rhumatologue ou diététicien.</p><button class="btn brand" data-act="report">Ouvrir le rapport imprimable</button></div>'
   +'<div class="card muted" style="font-size:12.5px">'+state.entries.length+' entrées enregistrées.'+(state.analysis?' · Analyse IA du '+state.analysis.date+'.':' · Pas encore d\'analyse IA.')+'</div>';
 }
 
