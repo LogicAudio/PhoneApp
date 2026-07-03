@@ -76,7 +76,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.21.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.22.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 var LLM_KEY="eatwise-llm";
 var LLMS={
@@ -189,8 +189,7 @@ function buildExport(){
 +summary
 +"CE QUE JE CHERCHE :\n"
 +"1) Ballonnements : déclencheurs suspects (aliments ET sport), délai typique déclencheur -> symptôme, combinaisons à risque.\n"
-+"2) Douleurs (spondylarthrite, réaction lente) : lien entre l'alimentation de la VEILLE et de l'AVANT-VEILLE et le niveau de douleur / la raideur du matin. La douleur matinale reflète surtout les repas des jours précédents, PAS ceux du jour même — ne les associe pas.\n"
-+"3) Des idées de repas concrets construits sur les aliments qui me réussissent.\n\n"
++"2) Douleurs (spondylarthrite, réaction lente) : lien entre l'alimentation de la VEILLE et de l'AVANT-VEILLE et le niveau de douleur / la raideur du matin. La douleur matinale reflète surtout les repas des jours précédents, PAS ceux du jour même — ne les associe pas.\n\n"
 +"MÉTHODE :\n"
 +"- Distingue corrélation et causalité ; pour chaque hypothèse, donne un niveau de confiance (faible/moyen/élevé) et le nombre d'observations qui la soutiennent.\n"
 +"- Pour les ballonnements, raisonne aussi par familles d'aliments (FODMAP, fermentescibles, alcool et boissons gazeuses, gras, sport post-prandial), pas seulement aliment par aliment.\n"
@@ -201,11 +200,10 @@ function buildExport(){
 +"   - BALLONNEMENTS (digestion) : déclencheurs suspects, délai typique, combinaisons, rôle du sport — avec niveau de confiance.\n"
 +"   - DOULEURS (spondylarthrite) : liens éventuels avec l'alimentation de la veille / avant-veille, en tenant compte du décalage — avec niveau de confiance.\n"
 +"   - SUGGESTIONS : des pistes concrètes et actionnables — quoi essayer, quoi limiter ou décaler — formulées comme des expériences prudentes à tester (durée en jours, quoi noter pour pouvoir conclure), jamais comme des prescriptions médicales.\n"
-+"   - IDÉES RECETTES : 2 à 3 repas simples et appétissants construits sur mes aliments bien tolérés, en évitant mes suspects du moment, avec une alternative quand un ingrédient est incertain.\n"
-+"   Reste prudent (hypothèses, jamais de causalité affirmée), signale les limites des données, propose des tests concrets.\n"
++"   Reste prudent (hypothèses, jamais de causalité affirmée), signale les limites des données, propose des tests concrets. Ne propose PAS de recettes ici : l'app a un circuit dédié pour ça.\n"
 +"PARTIE 2 — Un petit JSON contenant UNIQUEMENT l'analyse (surtout PAS les entrées), à coller dans l'app (onglet Analyse, zone « Puis colle la réponse ici »). Format exact :\n"
 +"   {\"analysis\": {\"date\": \""+todayISO()+"\", \"text\": \"<synthèse CONDENSÉE>\"}}\n"
-+"   - Dans \"text\", structure avec des titres '## ' (ex. '## Ballonnements', '## Douleurs', '## Suggestions', '## Recettes', '## Tests', '## Limites') et des puces '- ' ; sépare bien ballonnements et douleurs ; les retours à la ligne s'écrivent \\n.\n"
++"   - Dans \"text\", structure avec des titres '## ' (ex. '## Ballonnements', '## Douleurs',  '## Suggestions', '## Tests', '## Limites') et des puces '- ' ; sépare bien ballonnements et douleurs ; les retours à la ligne s'écrivent \\n.\n"
 +"   - L'app remplace l'analyse et garde mes données intactes.\n\n"
 +prev
 +"DONNÉES (JSON) :\n"+JSON.stringify({entries:state.entries, analysis:state.analysis},null,2);
@@ -514,7 +512,7 @@ function analyseHTML(){
   var b=computeBloat(state.entries), p=computePain(state.entries);
   var claudeBlock='';
   if(state.analysis && state.analysis.text){ claudeBlock='<div class="card"><span class="cardhd">Analyse IA</span><p class="muted" style="font-size:11.5px;margin:2px 0 8px">Établie le '+state.analysis.date+'</p>'+renderAnalysis(state.analysis.text)+'</div>'; }
-  claudeBlock+='<div class="card"><span class="cardhd">'+(state.analysis?'Mettre à jour l\'analyse':'Lancer une analyse complète')+'</span><p class="muted" style="font-size:13px;margin:4px 0 10px">L\'IA lit ton carnet et rédige une analyse détaillée, avec des idées recettes. Choisis ton IA :</p>'
+  claudeBlock+='<div class="card"><span class="cardhd">'+(state.analysis?'Mettre à jour l\'analyse':'Lancer une analyse complète')+'</span><p class="muted" style="font-size:13px;margin:4px 0 10px">L\'IA lit ton carnet et rédige une analyse détaillée. Choisis ton IA :</p>'
     +llmChipsHTML()
     +'<button class="btn brand" data-act="sendClaude">'+(state.llm==="copy"?"Copier mon rapport d\'analyse":"Analyser mes données")+'</button>'
     +'<p class="muted" style="font-size:11.5px;margin:6px 0 14px">'+(state.llm==="copy"?"Le rapport se copie — colle-le dans l\'IA de ton choix.":"Ton rapport est copié et "+LLMS[state.llm].name+" s\'ouvre — si le message n\'est pas pré-rempli, fais simplement « Coller ».")+' <span data-act="openExport" style="color:var(--brand);text-decoration:underline;cursor:pointer">Voir le rapport</span></p>'

@@ -11,7 +11,7 @@ read_when: Avant de modifier le prompt d'analyse envoyé à Claude (fonction bui
 > **Source exécutée :** la fonction `buildExport()` dans `apps/eatwise/www/index.html` (tout est
 > inline dans l'app, par design). Ce fichier est le **miroir de revue** : même contenu, lisible.
 > Le golden `scripts/eatwise_golden.mjs` fige la sortie réelle — si code et miroir divergent, le
-> commit doit être refusé en revue. Version du prompt : **v2 (app 3.16.0)**.
+> commit doit être refusé en revue. Version du prompt : **v3 (app 3.22.0)** — sans recettes.
 >
 > Les blocs `{{…}}` sont injectés par l'app : `{{RÉSUMÉ}}` (statistiques calculées, omis si
 > vide), `{{DATE_DU_JOUR}}`, `{{ANALYSE_PRÉCÉDENTE}}` (omis s'il n'y en a pas), `{{DONNÉES}}`
@@ -34,7 +34,6 @@ STRUCTURE — un tableau "entries", chaque entrée a un champ "type" :
 CE QUE JE CHERCHE :
 1) Ballonnements : déclencheurs suspects (aliments ET sport), délai typique déclencheur -> symptôme, combinaisons à risque.
 2) Douleurs (spondylarthrite, réaction lente) : lien entre l'alimentation de la VEILLE et de l'AVANT-VEILLE et le niveau de douleur / la raideur du matin. La douleur matinale reflète surtout les repas des jours précédents, PAS ceux du jour même — ne les associe pas.
-3) Des idées de repas concrets construits sur les aliments qui me réussissent.
 
 MÉTHODE :
 - Distingue corrélation et causalité ; pour chaque hypothèse, donne un niveau de confiance (faible/moyen/élevé) et le nombre d'observations qui la soutiennent.
@@ -47,11 +46,10 @@ PARTIE 1 — Une explication en clair, en SÉPARANT nettement :
    - BALLONNEMENTS (digestion) : déclencheurs suspects, délai typique, combinaisons, rôle du sport — avec niveau de confiance.
    - DOULEURS (spondylarthrite) : liens éventuels avec l'alimentation de la veille / avant-veille, en tenant compte du décalage — avec niveau de confiance.
    - SUGGESTIONS : des pistes concrètes et actionnables — quoi essayer, quoi limiter ou décaler — formulées comme des expériences prudentes à tester (durée en jours, quoi noter pour pouvoir conclure), jamais comme des prescriptions médicales.
-   - IDÉES RECETTES : 2 à 3 repas simples et appétissants construits sur mes aliments bien tolérés, en évitant mes suspects du moment, avec une alternative quand un ingrédient est incertain.
-   Reste prudent (hypothèses, jamais de causalité affirmée), signale les limites des données, propose des tests concrets.
+   Reste prudent (hypothèses, jamais de causalité affirmée), signale les limites des données, propose des tests concrets. Ne propose PAS de recettes ici : l'app a un circuit dédié pour ça.
 PARTIE 2 — Un petit JSON contenant UNIQUEMENT l'analyse (surtout PAS les entrées), à coller dans l'app (onglet Analyse, zone « Puis colle la réponse ici »). Format exact :
    {"analysis": {"date": "{{DATE_DU_JOUR}}", "text": "<synthèse CONDENSÉE>"}}
-   - Dans "text", structure avec des titres '## ' (ex. '## Ballonnements', '## Douleurs', '## Suggestions', '## Recettes', '## Tests', '## Limites') et des puces '- ' ; sépare bien ballonnements et douleurs ; les retours à la ligne s'écrivent \n.
+   - Dans "text", structure avec des titres '## ' (ex. '## Ballonnements', '## Douleurs', '## Suggestions', '## Tests', '## Limites') et des puces '- ' ; sépare bien ballonnements et douleurs ; les retours à la ligne s'écrivent \n.
    - L'app remplace l'analyse et garde mes données intactes.
 
 {{ANALYSE_PRÉCÉDENTE}} *(bloc optionnel — « ANALYSE PRÉCÉDENTE (rédigée par toi, Claude, le <date>, d'après les seules données connues alors. Elle peut être partielle ou dépassée : reconsidère-la à la lumière des données à jour ci-dessous, ne la reprends pas telle quelle) : » suivi du texte)*
@@ -71,8 +69,8 @@ DONNÉES (JSON) :
   d'affirmer.
 - **Familles FODMAP** : permet de détecter un motif quand les aliments individuels n'ont pas
   assez d'occurrences.
-- **Recettes en PARTIE 1 + titre `## Recettes` en PARTIE 2** : la fonctionnalité recettes vit
-  dans la boucle d'analyse — zéro changement du modèle de données.
+- **Pas de recettes dans l'analyse** (depuis 3.22.0, demande de Thomas) : les recettes ont leur
+  circuit dédié (onglet Recettes, prompt séparé, lecture directe dans l'IA, pas de retour).
 - **PARTIE 2 minimale** : jamais les entrées dans la réponse (l'app garde les données, Claude ne
   renvoie que l'analyse).
 
