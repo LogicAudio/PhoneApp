@@ -49,7 +49,7 @@ PARTIE 1 — Une explication en clair, en SÉPARANT nettement :
    - SUGGESTIONS : des pistes concrètes et actionnables — quoi essayer, quoi limiter ou décaler — formulées comme des expériences prudentes à tester (durée en jours, quoi noter pour pouvoir conclure), jamais comme des prescriptions médicales.
    - IDÉES RECETTES : 2 à 3 repas simples et appétissants construits sur mes aliments bien tolérés, en évitant mes suspects du moment, avec une alternative quand un ingrédient est incertain.
    Reste prudent (hypothèses, jamais de causalité affirmée), signale les limites des données, propose des tests concrets.
-PARTIE 2 — Un petit JSON contenant UNIQUEMENT l'analyse (surtout PAS les entrées), à coller dans l'app (onglet Données, étape 3). Format exact :
+PARTIE 2 — Un petit JSON contenant UNIQUEMENT l'analyse (surtout PAS les entrées), à coller dans l'app (onglet Analyse, zone « Puis colle la réponse ici »). Format exact :
    {"analysis": {"date": "{{DATE_DU_JOUR}}", "text": "<synthèse CONDENSÉE>"}}
    - Dans "text", structure avec des titres '## ' (ex. '## Ballonnements', '## Douleurs', '## Suggestions', '## Recettes', '## Tests', '## Limites') et des puces '- ' ; sépare bien ballonnements et douleurs ; les retours à la ligne s'écrivent \n.
    - L'app remplace l'analyse et garde mes données intactes.
