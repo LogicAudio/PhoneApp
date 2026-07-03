@@ -1,0 +1,41 @@
+{
+  "_comment": "Jeu d'entrées FIGÉ pour les goldens EatWise — ne jamais modifier sans recaler la baseline (node scripts/eatwise_golden.mjs --update, avec accord explicite). Couvre : dédup/casse des tags, flag sport hérité, bornes de la fenêtre 4h (240 min inclus, 241 exclu), sev<2 ignoré, corrélation douleur J-1/J-2 (jamais jour J), seuil 3 jours par aliment.",
+  "entries": [
+    { "id": "m1", "type": "meal", "date": "2026-01-05", "time": "12:00", "meal": "Chou-fleur, OIGNON, chou-fleur", "tags": ["Chou-fleur", "Oignon"] },
+    { "id": "m2", "type": "meal", "date": "2026-01-05", "time": "19:00", "meal": "Riz", "tags": ["Riz"] },
+    { "id": "s1", "type": "symptom", "date": "2026-01-05", "time": "14:30", "sev": 3, "note": "gonflé" },
+    { "id": "sp1", "type": "sport", "date": "2026-01-06", "time": "08:00", "note": "vélo 30 min" },
+    { "id": "s2", "type": "symptom", "date": "2026-01-06", "time": "12:00", "sev": 2, "note": "pile 4h après le sport" },
+    { "id": "m3", "type": "meal", "date": "2026-01-07", "time": "12:00", "meal": "Oignon", "tags": ["Oignon"], "sport": true },
+    { "id": "s3", "type": "symptom", "date": "2026-01-07", "time": "13:00", "sev": 1, "note": "léger — sous le seuil sev>=2" },
+    { "id": "s4", "type": "symptom", "date": "2026-01-07", "time": "16:01", "sev": 2, "note": "241 min — hors fenêtre" },
+    { "id": "m4", "type": "meal", "date": "2026-01-08", "time": "12:00", "meal": "Chou-fleur", "tags": ["Chou-fleur"] },
+    { "id": "s5", "type": "symptom", "date": "2026-01-08", "time": "12:30", "sev": 2, "note": "" },
+    { "id": "m5", "type": "meal", "date": "2026-01-09", "time": "12:00", "meal": "Gluten", "tags": ["Gluten"] },
+    { "id": "p1", "type": "pain", "date": "2026-01-09", "level": 2, "stiff": false, "note": "" },
+    { "id": "m6", "type": "meal", "date": "2026-01-10", "time": "12:00", "meal": "Salade", "tags": ["Salade"] },
+    { "id": "p2", "type": "pain", "date": "2026-01-10", "level": 8, "stiff": true, "note": "dos" },
+    { "id": "m7", "type": "meal", "date": "2026-01-11", "time": "12:00", "meal": "Gluten", "tags": ["Gluten"] },
+    { "id": "p3", "type": "pain", "date": "2026-01-11", "level": 7, "stiff": true, "note": "" },
+    { "id": "p4", "type": "pain", "date": "2026-01-12", "level": 3, "stiff": false, "note": "" }
+  ],
+  "analysis": { "date": "2026-01-10", "text": "## Précédent\n- point retenu" },
+  "tagCases": [
+    "Chou-fleur, OIGNON, chou-fleur",
+    "bœuf ; POIS chiches\nthé vert",
+    "   ",
+    "pomme,,pomme"
+  ],
+  "normCases": ["BŒUF", "  chou   fleur  ", "", "éclair au café"],
+  "importCases": [
+    { "name": "tableau brut d'entries", "payload": [{ "id": "x1", "type": "meal", "date": "2026-01-05", "time": "12:00", "meal": "Riz", "tags": ["Riz"] }] },
+    { "name": "entries + analysis", "payload": { "entries": [{ "id": "x1", "type": "meal", "date": "2026-01-05", "time": "12:00", "meal": "Riz", "tags": ["Riz"] }, { "id": "x2", "type": "pain", "date": "2026-01-06", "level": 4, "stiff": false, "note": "" }], "analysis": { "date": "2026-01-10", "text": "## Test\n- ok" } } },
+    { "name": "analysis seule", "payload": { "analysis": { "date": "2026-01-11", "text": "## Seul" } } },
+    { "name": "analysis null (efface)", "payload": { "analysis": null } },
+    { "name": "analysis sans date (défaut = todayISO)", "payload": { "analysis": { "text": "## Sans date" } } },
+    { "name": "format inattendu", "payload": { "garbage": true } }
+  ],
+  "analysisTexts": [
+    "## Ballonnements\n- Oignon suspect\n\nTexte <script> à échapper & vérifier\n### Sous-titre\n* puce étoile\n• puce point"
+  ]
+}

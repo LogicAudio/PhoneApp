@@ -1,0 +1,189 @@
+{
+  "normFood": [
+    {
+      "input": "BŒUF",
+      "out": "Bœuf"
+    },
+    {
+      "input": "  chou   fleur  ",
+      "out": "Chou fleur"
+    },
+    {
+      "input": "",
+      "out": ""
+    },
+    {
+      "input": "éclair au café",
+      "out": "Éclair au café"
+    }
+  ],
+  "tags": [
+    {
+      "input": "Chou-fleur, OIGNON, chou-fleur",
+      "tags": [
+        "Chou-fleur",
+        "Oignon"
+      ]
+    },
+    {
+      "input": "bœuf ; POIS chiches\nthé vert",
+      "tags": [
+        "Bœuf",
+        "Pois chiches",
+        "Thé vert"
+      ]
+    },
+    {
+      "input": "   ",
+      "tags": []
+    },
+    {
+      "input": "pomme,,pomme",
+      "tags": [
+        "Pomme"
+      ]
+    }
+  ],
+  "bloat": {
+    "suspects": [
+      {
+        "name": "Chou-fleur",
+        "total": 2,
+        "bad": 2,
+        "rate": 1,
+        "med": 90
+      },
+      {
+        "name": "Oignon",
+        "total": 2,
+        "bad": 1,
+        "rate": 0.5,
+        "med": 150
+      },
+      {
+        "name": "Sport",
+        "total": 2,
+        "bad": 1,
+        "rate": 0.5,
+        "med": 240
+      },
+      {
+        "name": "Gluten",
+        "total": 2,
+        "bad": 0,
+        "rate": 0,
+        "med": null
+      }
+    ],
+    "avgDelay": 150
+  },
+  "pain": {
+    "overall": 5,
+    "foods": [
+      {
+        "name": "Gluten",
+        "avgWith": 6,
+        "avgWithout": 2,
+        "n": 3,
+        "delta": 4
+      }
+    ],
+    "count": 4
+  },
+  "imports": [
+    {
+      "name": "tableau brut d'entries",
+      "entries": [
+        {
+          "id": "x1",
+          "type": "meal",
+          "date": "2026-01-05",
+          "time": "12:00",
+          "meal": "Riz",
+          "tags": [
+            "Riz"
+          ]
+        }
+      ],
+      "analysis": null,
+      "alerts": [
+        "Importé : 1 entrées."
+      ]
+    },
+    {
+      "name": "entries + analysis",
+      "entries": [
+        {
+          "id": "x1",
+          "type": "meal",
+          "date": "2026-01-05",
+          "time": "12:00",
+          "meal": "Riz",
+          "tags": [
+            "Riz"
+          ]
+        },
+        {
+          "id": "x2",
+          "type": "pain",
+          "date": "2026-01-06",
+          "level": 4,
+          "stiff": false,
+          "note": ""
+        }
+      ],
+      "analysis": {
+        "text": "## Test\n- ok",
+        "date": "2026-01-10"
+      },
+      "alerts": [
+        "Importé : 2 entrées + analyse."
+      ]
+    },
+    {
+      "name": "analysis seule",
+      "entries": [],
+      "analysis": {
+        "text": "## Seul",
+        "date": "2026-01-11"
+      },
+      "alerts": [
+        "Importé : analyse."
+      ]
+    },
+    {
+      "name": "analysis null (efface)",
+      "entries": [],
+      "analysis": null,
+      "alerts": [
+        "Importé : analyse."
+      ]
+    },
+    {
+      "name": "analysis sans date (défaut = todayISO)",
+      "entries": [],
+      "analysis": {
+        "text": "## Sans date",
+        "date": "2026-01-15"
+      },
+      "alerts": [
+        "Importé : analyse."
+      ]
+    },
+    {
+      "name": "format inattendu",
+      "entries": [],
+      "analysis": null,
+      "alerts": [
+        "Format inattendu."
+      ]
+    }
+  ],
+  "renderAnalysis": [
+    {
+      "input": "## Ballonnements\n- Oignon suspect\n\nTexte <script> à échapper & vérifier\n### Sous-titre\n* puce étoile\n• puce point",
+      "html": "<div style=\"font-family:var(--serif);font-size:14.5px;font-weight:700;color:var(--brand);margin:12px 0 4px\">Ballonnements</div><ul style=\"margin:4px 0 6px 2px;padding-left:18px\"><li style=\"margin:3px 0;font-size:13px;line-height:1.45\">Oignon suspect</li></ul><div style=\"margin:4px 0;font-size:13px;line-height:1.45\">Texte &lt;script&gt; à échapper &amp; vérifier</div><div style=\"font-family:var(--serif);font-size:14.5px;font-weight:700;color:var(--brand);margin:12px 0 4px\">Sous-titre</div><ul style=\"margin:4px 0 6px 2px;padding-left:18px\"><li style=\"margin:3px 0;font-size:13px;line-height:1.45\">puce étoile</li><li style=\"margin:3px 0;font-size:13px;line-height:1.45\">puce point</li></ul>"
+    }
+  ],
+  "exportPrompt": "Adopte la posture d'un expert en nutrition clinique et en rhumatologie, spécialisé dans les maladies inflammatoires chroniques (dont la spondylarthrite). Appuie-toi sur les données scientifiques établies ; si tu disposes de la recherche web, vérifie et cite de vraies sources récentes (ex. PubMed) — sinon n'invente AUCUNE référence et dis-le clairement. Ceci reste un suivi personnel, pas un avis médical.\n\nVoici les données de mon carnet de suivi (digestion + spondylarthrite ankylosante). Analyse-les.\n\nSTRUCTURE — un tableau \"entries\", chaque entrée a un champ \"type\" :\n- type \"meal\"    : {date, time, meal (texte libre), tags (aliments détectés automatiquement, un par ingrédient), sport (booléen hérité, ancien flag)}\n- type \"sport\"   : {date, time, note}. Effort physique horodaté — peut couper la digestion et déclencher un ballonnement (traité comme un déclencheur, au même titre qu'un repas).\n- type \"symptom\" : ballonnements. {date, time, sev : 0=aucune gêne (observation explicite d'absence de symptôme) 1=léger 2=moyen 3=fort, note}\n- type \"pain\"    : douleur quotidienne (spondylarthrite). {date, level : 0 à 10, stiff : raideur matinale true/false, note}\n\nCE QUE JE CHERCHE :\n1) Ballonnements : déclencheurs suspects (aliments ET sport), délai typique déclencheur -> symptôme, combinaisons à risque.\n2) Douleurs (spondylarthrite, réaction lente) : lien entre l'alimentation de la VEILLE et de l'AVANT-VEILLE et le niveau de douleur / la raideur du matin. La douleur matinale reflète surtout les repas des jours précédents, PAS ceux du jour même — ne les associe pas.\n\nCE QUE TU DOIS ME RENVOYER — deux parties distinctes :\nPARTIE 1 — Une explication en clair, en SÉPARANT nettement :\n   - BALLONNEMENTS (digestion) : déclencheurs suspects, délai typique, combinaisons, rôle du sport.\n   - DOULEURS (spondylarthrite) : liens éventuels avec l'alimentation de la veille / avant-veille, en tenant compte du décalage.\n   - SUGGESTIONS : des pistes concrètes et actionnables — quoi essayer, quoi limiter ou décaler — formulées comme des expériences prudentes à tester, jamais comme des prescriptions médicales.\n   Reste prudent (hypothèses, jamais de causalité affirmée), signale les limites des données, propose des tests concrets.\nPARTIE 2 — Un petit JSON contenant UNIQUEMENT l'analyse (surtout PAS les entrées), à coller dans « Importer le texte collé ». Format exact :\n   {\"analysis\": {\"date\": \"2026-01-15\", \"text\": \"<synthèse CONDENSÉE>\"}}\n   - Dans \"text\", structure avec des titres '## ' (ex. '## Ballonnements', '## Douleurs', '## Suggestions', '## Tests', '## Limites') et des puces '- ' ; sépare bien ballonnements et douleurs ; les retours à la ligne s'écrivent \\n.\n   - L'app remplace l'analyse et garde mes données intactes.\n\nANALYSE PRÉCÉDENTE (rédigée par toi, Claude, le 2026-01-10, d'après les seules données connues alors. Elle peut être partielle ou dépassée : reconsidère-la à la lumière des données à jour ci-dessous, ne la reprends pas telle quelle) :\n## Précédent\n- point retenu\n\nDONNÉES (JSON) :\n{\n  \"entries\": [\n    {\n      \"id\": \"m1\",\n      \"type\": \"meal\",\n      \"date\": \"2026-01-05\",\n      \"time\": \"12:00\",\n      \"meal\": \"Chou-fleur, OIGNON, chou-fleur\",\n      \"tags\": [\n        \"Chou-fleur\",\n        \"Oignon\"\n      ]\n    },\n    {\n      \"id\": \"m2\",\n      \"type\": \"meal\",\n      \"date\": \"2026-01-05\",\n      \"time\": \"19:00\",\n      \"meal\": \"Riz\",\n      \"tags\": [\n        \"Riz\"\n      ]\n    },\n    {\n      \"id\": \"s1\",\n      \"type\": \"symptom\",\n      \"date\": \"2026-01-05\",\n      \"time\": \"14:30\",\n      \"sev\": 3,\n      \"note\": \"gonflé\"\n    },\n    {\n      \"id\": \"sp1\",\n      \"type\": \"sport\",\n      \"date\": \"2026-01-06\",\n      \"time\": \"08:00\",\n      \"note\": \"vélo 30 min\"\n    },\n    {\n      \"id\": \"s2\",\n      \"type\": \"symptom\",\n      \"date\": \"2026-01-06\",\n      \"time\": \"12:00\",\n      \"sev\": 2,\n      \"note\": \"pile 4h après le sport\"\n    },\n    {\n      \"id\": \"m3\",\n      \"type\": \"meal\",\n      \"date\": \"2026-01-07\",\n      \"time\": \"12:00\",\n      \"meal\": \"Oignon\",\n      \"tags\": [\n        \"Oignon\"\n      ],\n      \"sport\": true\n    },\n    {\n      \"id\": \"s3\",\n      \"type\": \"symptom\",\n      \"date\": \"2026-01-07\",\n      \"time\": \"13:00\",\n      \"sev\": 1,\n      \"note\": \"léger — sous le seuil sev>=2\"\n    },\n    {\n      \"id\": \"s4\",\n      \"type\": \"symptom\",\n      \"date\": \"2026-01-07\",\n      \"time\": \"16:01\",\n      \"sev\": 2,\n      \"note\": \"241 min — hors fenêtre\"\n    },\n    {\n      \"id\": \"m4\",\n      \"type\": \"meal\",\n      \"date\": \"2026-01-08\",\n      \"time\": \"12:00\",\n      \"meal\": \"Chou-fleur\",\n      \"tags\": [\n        \"Chou-fleur\"\n      ]\n    },\n    {\n      \"id\": \"s5\",\n      \"type\": \"symptom\",\n      \"date\": \"2026-01-08\",\n      \"time\": \"12:30\",\n      \"sev\": 2,\n      \"note\": \"\"\n    },\n    {\n      \"id\": \"m5\",\n      \"type\": \"meal\",\n      \"date\": \"2026-01-09\",\n      \"time\": \"12:00\",\n      \"meal\": \"Gluten\",\n      \"tags\": [\n        \"Gluten\"\n      ]\n    },\n    {\n      \"id\": \"p1\",\n      \"type\": \"pain\",\n      \"date\": \"2026-01-09\",\n      \"level\": 2,\n      \"stiff\": false,\n      \"note\": \"\"\n    },\n    {\n      \"id\": \"m6\",\n      \"type\": \"meal\",\n      \"date\": \"2026-01-10\",\n      \"time\": \"12:00\",\n      \"meal\": \"Salade\",\n      \"tags\": [\n        \"Salade\"\n      ]\n    },\n    {\n      \"id\": \"p2\",\n      \"type\": \"pain\",\n      \"date\": \"2026-01-10\",\n      \"level\": 8,\n      \"stiff\": true,\n      \"note\": \"dos\"\n    },\n    {\n      \"id\": \"m7\",\n      \"type\": \"meal\",\n      \"date\": \"2026-01-11\",\n      \"time\": \"12:00\",\n      \"meal\": \"Gluten\",\n      \"tags\": [\n        \"Gluten\"\n      ]\n    },\n    {\n      \"id\": \"p3\",\n      \"type\": \"pain\",\n      \"date\": \"2026-01-11\",\n      \"level\": 7,\n      \"stiff\": true,\n      \"note\": \"\"\n    },\n    {\n      \"id\": \"p4\",\n      \"type\": \"pain\",\n      \"date\": \"2026-01-12\",\n      \"level\": 3,\n      \"stiff\": false,\n      \"note\": \"\"\n    }\n  ],\n  \"analysis\": {\n    \"date\": \"2026-01-10\",\n    \"text\": \"## Précédent\\n- point retenu\"\n  }\n}"
+}

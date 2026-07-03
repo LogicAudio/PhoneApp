@@ -38,4 +38,5 @@ After each deploy that changes code, bump the `sw.js` cache name — rule in [ea
 scripts/bootstrap.sh                       # once per clone: git hooks + rot-guards
 python3 scripts/check_knowledge.py         # doc rot-guard (--staged, --strict, --quiet)
 python3 scripts/check_plans.py             # regenerate Plans/README.md boards (--check to gate)
+node scripts/eatwise_golden.mjs            # fragile-core goldens (--update to re-baseline — deliberate, human sign-off)
 ```

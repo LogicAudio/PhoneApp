@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 # Pre-commit — fast advisory nudge (coexistence spec §8). scripts/verify.sh is the real gate.
-# No fragile core declared yet, so nothing blocks here; when one is declared, add its
-# staged-file grep + blocking regression above the advisories (see the spec §8).
+# Blocks ONLY when the fragile core is staged (CLAUDE.md invariants); everything else passes
+# instantly with the two rot-guards as advisories. Bypass (WIP only): git commit --no-verify.
+
+if git diff --cached --name-only | grep -qx "apps/eatwise/www/index.html"; then
+    echo "pre-commit: cœur fragile stagé (apps/eatwise/www/index.html) → goldens…"
+    node scripts/eatwise_golden.mjs || {
+        echo "pre-commit: ❌ régression golden — corrige, ou recale la baseline délibérément (accord humain, voir CLAUDE.md)."
+        exit 1
+    }
+fi
 
 python3 scripts/check_knowledge.py --staged --quiet || true
 python3 scripts/check_plans.py --check || true
