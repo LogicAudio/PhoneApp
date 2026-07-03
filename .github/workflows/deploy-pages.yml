@@ -1,5 +1,5 @@
 # Déploie la PWA EatWise (apps/eatwise/www/) sur GitHub Pages.
-# Prérequis côté GitHub : Settings → Pages → Source = "GitHub Actions".
+# Active Pages automatiquement au premier run (enablement: true).
 name: Deploy EatWise PWA to GitHub Pages
 
 on:
@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - "apps/eatwise/www/**"
+      - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -27,6 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: apps/eatwise/www
