@@ -88,7 +88,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.26.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.27.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 var LLM_KEY="eatwise-llm";
 var LLMS={
@@ -396,7 +396,7 @@ function computeBloat(entries){
     var d=best!=null?Math.round((best-mt)/60000):null; if(d!=null) all.push(d);
     m.tags.forEach(function(t){ stat[t]=stat[t]||{name:t,total:0,bad:0,delays:[]}; stat[t].total++; if(best!=null){ stat[t].bad++; if(d!=null) stat[t].delays.push(d); } });
   });
-  var suspects=Object.keys(stat).map(function(k){return stat[k];}).filter(function(s){return s.total>=2;}).map(function(s){ return {name:s.name,total:s.total,bad:s.bad,rate:s.bad/s.total,med:median(s.delays)}; }).sort(function(a,b){return b.rate-a.rate||b.bad-a.bad||b.total-a.total;});
+  var suspects=Object.keys(stat).map(function(k){return stat[k];}).filter(function(s){return s.total>=2||s.bad>=1;}).map(function(s){ return {name:s.name,total:s.total,bad:s.bad,rate:s.bad/s.total,med:median(s.delays)}; }).sort(function(a,b){return b.rate-a.rate||b.bad-a.bad||b.total-a.total;});
   return {suspects:suspects, avgDelay:median(all)};
 }
 function computePain(entries){
@@ -541,7 +541,12 @@ function analyseHTML(){
   var h='<div class="sectitle">'+LBL("fast")+'s</div>';
   if(b.avgDelay!=null) h+='<div class="card" style="background:var(--brand);color:#FFFFFF;border:none"><div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.85">Délai typique</div><div style="font-family:var(--serif);font-size:26px;font-weight:600">≈ '+b.avgDelay+' min après le déclencheur</div></div>';
   var probs=b.suspects.filter(function(x){return x.bad>0;}).sort(function(a,bb){return bb.bad-a.bad||bb.rate-a.rate;}).slice(0,5);
-  if(probs.length===0){ h+='<div class="card center muted">Aucun aliment n\'a encore causé de problème — continue d\'enregistrer tes repas et ton ressenti.</div>'; }
+  if(probs.length===0){
+    var epis=state.entries.filter(function(e){return e.type==="symptom"&&e.sev>=2;});
+    var matched=0; epis.forEach(function(sy){ var stt=ts(sy); for(var i=0;i<state.entries.length;i++){ var ee=state.entries[i]; if((ee.type==="meal"||ee.type==="sport") && ts(ee)<stt && stt-ts(ee)<=WINDOW_MS){ matched++; break; } } });
+    if(epis.length===0){ h+='<div class="card center muted">Aucun épisode d\'intensité moyenne ou forte enregistré pour l\'instant (les intensités « Aucune » et « Léger » ne comptent pas comme problème).</div>'; }
+    else { h+='<div class="card muted" style="font-size:13px">'+epis.length+' épisode'+(epis.length>1?"s":"")+' d\'intensité moyenne ou forte enregistré'+(epis.length>1?"s":"")+', mais '+(matched===0?"aucun":matched)+' n\'est survenu dans les 4 heures après un repas ou un sport noté — je ne peux donc relier aucun déclencheur. Vérifie les heures de tes repas et de tes épisodes, et pense à noter le repas qui précède chaque épisode.</div>'; }
+  }
   else {
     var maxBad=probs[0].bad;
     h+='<div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Top '+probs.length+' des déclencheurs : plus la barre est pleine et rouge, plus l\'aliment a été suivi d\'un épisode.</div>'+probs.map(function(x){
