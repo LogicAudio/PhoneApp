@@ -1,24 +1,407 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#1F5C54">
-  <title>EatWise</title>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="icon.svg" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#1F5C54" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="EatWise" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icon.svg" />
+<title>EatWise</title>
+<style>
+:root{
+  --bg:#F1ECE0;--paper:#FBF8F1;--ink:#23302E;--muted:#6E6A5F;
+  --brand:#1F5C54;--ochre:#C98A34;--good:#5E8B5A;--alert:#BE5238;--line:#E2DBCB;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-bottom:40px}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+.hdr{background:var(--brand);color:#F1ECE0;padding:26px 0 20px}
+.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.8}
+.tagline{font-family:var(--serif);font-style:italic;font-size:15px;opacity:.85;margin-top:3px}
+.h1{font-family:var(--serif);font-size:27px;margin:6px 0 4px;font-weight:600;line-height:1.12}
+.sub{margin:0;font-size:13.5px;opacity:.85}
+.tabs{display:flex;gap:6px;margin-top:16px;margin-bottom:16px;flex-wrap:wrap}
+.tab{flex:1;min-width:70px;padding:9px 6px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--sans)}
+.tab.on{border-color:var(--brand);background:var(--brand);color:#fff}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.seg{display:flex;gap:5px;background:#EDE6D6;padding:4px;border-radius:12px;margin-bottom:16px}
+.segbtn{flex:1;padding:9px 2px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:var(--sans)}
+.segbtn.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.row{display:flex;gap:10px;margin-bottom:14px}
+.lab{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;display:block;font-weight:600}
+.field{width:100%;padding:11px 12px;font-size:16px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font-family:var(--sans);outline:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 12px;border-radius:999px;font-size:14px;cursor:pointer;border:1.5px solid var(--line);user-select:none;display:inline-block}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;font-family:var(--sans)}
+.btn.dark{background:var(--ink);color:#fff}
+.btn.alert{background:var(--alert);color:#fff}
+.btn.ochre{background:var(--ochre);color:#fff}
+.btn.brand{background:var(--brand);color:#fff;font-size:15px;padding:12px}
+.btn.outline{background:transparent;border:1px solid var(--brand);color:var(--brand);font-size:15px;padding:12px}
+.mt10{margin-top:10px}
+.meta{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.tagpill{font-size:12px;padding:3px 8px;border-radius:999px;background:#EFE9DA;color:var(--muted)}
+.tagpill.sport{background:#F3E6D2;color:var(--ochre)}
+.delbtn{margin-top:8px;background:none;border:none;color:var(--alert);font-size:12.5px;cursor:pointer;padding:0;font-family:var(--sans)}
+.sectitle{font-family:var(--serif);font-size:15px;color:var(--brand);font-weight:600;margin:4px 4px 8px}
+.daytitle{font-family:var(--serif);font-size:15px;color:var(--brand);font-weight:600;margin:0 4px 8px;text-transform:capitalize}
+.between{display:flex;justify-content:space-between}
+.bar{height:10px;background:#EDE6D6;border-radius:999px;overflow:hidden}
+.barfill{height:100%;border-radius:999px}
+.daybars{display:flex;align-items:flex-end;gap:4px;height:90px;margin-top:6px}
+.daycol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px}
+.dayfill{width:100%;border-radius:3px 3px 0 0}
+.dayx{font-size:9px;color:var(--muted)}
+.foodrow{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--line)}
+.muted{color:var(--muted)}
+.center{text-align:center}
+.note{font-size:13px;color:var(--muted);font-style:italic;margin-top:6px}
+.modalbg{position:fixed;inset:0;background:rgba(35,48,46,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modalbox{background:var(--paper);border-radius:16px;max-width:560px;width:100%;max-height:88vh;overflow:auto;padding:18px}
+.foot{max-width:560px;margin:20px auto 0;padding:0 16px;color:var(--muted);font-size:11.5px;line-height:1.5}
+.cardhd{font-family:var(--serif);font-size:17px;font-weight:700;display:block;margin-bottom:2px}
+</style>
 </head>
 <body>
-  <main style="padding: 16px; text-align: center; font-family: -apple-system, sans-serif;">
-    <h1>EatWise</h1>
-    <p>Placeholder — en attente du vrai index.html (v3.13.0) depuis la conversation claude.ai.</p>
-  </main>
-  <script>
+<div id="app"></div>
+<script>
+"use strict";
+
+var LS_KEY="eatwise-v3", VERSION="3.14.0", WINDOW_MS=4*60*60*1000;
+var APP_NAME="EatWise";
+
+var mem={};
+var store={
+  get:function(k){ try{ return localStorage.getItem(k); }catch(e){ return (k in mem)?mem[k]:null; } },
+  set:function(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem[k]=v; } }
+};
+
+var SEV=[{v:1,label:"Léger",color:"#B7A23C"},{v:2,label:"Moyen",color:"#C98A34"},{v:3,label:"Fort",color:"#BE5238"}];
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function nowHM(){ return new Date().toTimeString().slice(0,5); }
+function ts(e){ return new Date(e.date+"T"+(e.time||"12:00")).getTime(); }
+function addDay(iso,n){ var d=new Date(iso+"T12:00:00"); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function fmtDate(iso){ try{ return new Date(iso+"T12:00:00").toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"}); }catch(e){ return iso; } }
+function median(a){ if(!a||!a.length) return null; var s=a.slice().sort(function(x,y){return x-y;}); var m=Math.floor(s.length/2); return s.length%2?s[m]:Math.round((s[m-1]+s[m])/2); }
+function mean(a){ if(!a||!a.length) return null; var t=0; for(var i=0;i<a.length;i++) t+=a[i]; return Math.round((t/a.length)*10)/10; }
+function uid(){ return Date.now()+"-"+Math.random().toString(36).slice(2,7); }
+function slugify(s){ return (s||"eatwise").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")||"eatwise"; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+
+function normFood(s){ s=String(s||"").trim().replace(/\s+/g," "); if(!s) return ""; return s.charAt(0).toUpperCase()+s.slice(1).toLowerCase(); }
+function tagsFromMeal(text){ var parts=String(text||"").split(/[,;\n]+/); var seen={}, out=[]; parts.forEach(function(p){ var t=normFood(p); if(t){ var k=t.toLowerCase(); if(!seen[k]){ seen[k]=1; out.push(t); } } }); return out; }
+function tagPreviewText(text){ var t=tagsFromMeal(text); return t.length ? ("→ analysé comme : "+t.join(" · ")) : "Sépare les aliments par des virgules."; }
+
+function loadAll(){ try{ var raw=store.get(LS_KEY); if(raw){ var p=JSON.parse(raw); return {entries:Array.isArray(p.entries)?p.entries:[], analysis:(p.analysis&&p.analysis.text)?p.analysis:null}; } }catch(e){} return {entries:[], analysis:null}; }
+
+var _init=loadAll();
+var state={
+  entries:_init.entries,
+  analysis:_init.analysis,
+  tab:"log", kind:"meal",
+  date:todayISO(), time:nowHM(),
+  meal:"",
+  sev:2, note:"",
+  pain:0, stiff:false, pnote:"",
+  snote:"",
+  showExport:false, copied:false, imp:""
+};
+
+function saveAll(){ try{ store.set(LS_KEY,JSON.stringify({entries:state.entries, analysis:state.analysis})); }catch(e){} }
+function persist(next){ state.entries=next; saveAll(); }
+
+function addMeal(){
+  var tags=tagsFromMeal(state.meal);
+  if(!state.meal.trim() && tags.length===0) return;
+  persist([{id:uid(),type:"meal",date:state.date,time:state.time,meal:state.meal.trim(),tags:tags}].concat(state.entries));
+  state.meal="";state.time=nowHM();state.tab="history"; render();
+}
+function addSymptom(){ persist([{id:uid(),type:"symptom",date:state.date,time:state.time,sev:state.sev,note:state.note.trim()}].concat(state.entries)); state.note="";state.time=nowHM();state.tab="history"; render(); }
+function addSport(){ persist([{id:uid(),type:"sport",date:state.date,time:state.time,note:state.snote.trim()}].concat(state.entries)); state.snote="";state.time=nowHM();state.tab="history"; render(); }
+function addPain(){ var cleaned=state.entries.filter(function(e){return !(e.type==="pain"&&e.date===state.date);}); persist([{id:uid(),type:"pain",date:state.date,level:state.pain,stiff:state.stiff,note:state.pnote.trim()}].concat(cleaned)); state.pnote="";state.tab="history"; render(); }
+function removeEntry(id){ persist(state.entries.filter(function(e){return e.id!==id;})); render(); }
+
+function buildExport(){
+  var prev="";
+  if(state.analysis && state.analysis.text){
+    prev="ANALYSE PRÉCÉDENTE (rédigée par toi, Claude, le "+state.analysis.date+", d'après les seules données connues alors. Elle peut être partielle ou dépassée : reconsidère-la à la lumière des données à jour ci-dessous, ne la reprends pas telle quelle) :\n"+state.analysis.text+"\n\n";
+  }
+  return "Adopte la posture d'un expert en nutrition clinique et en rhumatologie, spécialisé dans les maladies inflammatoires chroniques (dont la spondylarthrite). Appuie-toi sur les données scientifiques établies ; si tu disposes de la recherche web, vérifie et cite de vraies sources récentes (ex. PubMed) — sinon n'invente AUCUNE référence et dis-le clairement. Ceci reste un suivi personnel, pas un avis médical.\n\n"
++"Voici les données de mon carnet de suivi (digestion + spondylarthrite ankylosante). Analyse-les.\n\n"
++"STRUCTURE — un tableau \"entries\", chaque entrée a un champ \"type\" :\n"
++"- type \"meal\"    : {date, time, meal (texte libre), tags (aliments détectés automatiquement, un par ingrédient), sport (booléen hérité, ancien flag)}\n"
++"- type \"sport\"   : {date, time, note}. Effort physique horodaté — peut couper la digestion et déclencher un ballonnement (traité comme un déclencheur, au même titre qu'un repas).\n"
++"- type \"symptom\" : ballonnements. {date, time, sev : 1=léger 2=moyen 3=fort, note}\n"
++"- type \"pain\"    : douleur quotidienne (spondylarthrite). {date, level : 0 à 10, stiff : raideur matinale true/false, note}\n\n"
++"CE QUE JE CHERCHE :\n"
++"1) Ballonnements : déclencheurs suspects (aliments ET sport), délai typique déclencheur -> symptôme, combinaisons à risque.\n"
++"2) Douleurs (spondylarthrite, réaction lente) : lien entre l'alimentation de la VEILLE et de l'AVANT-VEILLE et le niveau de douleur / la raideur du matin. La douleur matinale reflète surtout les repas des jours précédents, PAS ceux du jour même — ne les associe pas.\n\n"
++"CE QUE TU DOIS ME RENVOYER — deux parties distinctes :\n"
++"PARTIE 1 — Une explication en clair, en SÉPARANT nettement :\n"
++"   - BALLONNEMENTS (digestion) : déclencheurs suspects, délai typique, combinaisons, rôle du sport.\n"
++"   - DOULEURS (spondylarthrite) : liens éventuels avec l'alimentation de la veille / avant-veille, en tenant compte du décalage.\n"
++"   - SUGGESTIONS : des pistes concrètes et actionnables — quoi essayer, quoi limiter ou décaler — formulées comme des expériences prudentes à tester, jamais comme des prescriptions médicales.\n"
++"   Reste prudent (hypothèses, jamais de causalité affirmée), signale les limites des données, propose des tests concrets.\n"
++"PARTIE 2 — Un petit JSON contenant UNIQUEMENT l'analyse (surtout PAS les entrées), à coller dans « Importer le texte collé ». Format exact :\n"
++"   {\"analysis\": {\"date\": \""+todayISO()+"\", \"text\": \"<synthèse CONDENSÉE>\"}}\n"
++"   - Dans \"text\", structure avec des titres '## ' (ex. '## Ballonnements', '## Douleurs', '## Suggestions', '## Tests', '## Limites') et des puces '- ' ; sépare bien ballonnements et douleurs ; les retours à la ligne s'écrivent \\n.\n"
++"   - L'app remplace l'analyse et garde mes données intactes.\n\n"
++prev
++"DONNÉES (JSON) :\n"+JSON.stringify({entries:state.entries, analysis:state.analysis},null,2);
+}
+
+function copyExport(){
+  var txt=buildExport();
+  function done(ok){ state.copied=ok; render(); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){done(true);}).catch(function(){ fallback(); });
+  } else { fallback(); }
+  function fallback(){
+    try{ var ta=document.createElement("textarea"); ta.value=txt; ta.style.position="fixed"; ta.style.top="0"; ta.style.opacity="0"; document.body.appendChild(ta); ta.focus(); ta.select(); var ok=document.execCommand("copy"); document.body.removeChild(ta); done(!!ok); }catch(e){ done(false); }
+  }
+}
+function applyImport(parsed){
+  if(Array.isArray(parsed)){ state.entries=parsed; saveAll(); render(); alert("Importé : "+parsed.length+" entrées."); return; }
+  if(parsed && typeof parsed==="object"){
+    var msg=[];
+    if(Array.isArray(parsed.entries)){ state.entries=parsed.entries; msg.push(parsed.entries.length+" entrées"); }
+    if("analysis" in parsed){ var a=parsed.analysis; state.analysis=(a&&a.text)?{text:a.text,date:a.date||todayISO()}:null; msg.push("analyse"); }
+    if(msg.length){ saveAll(); render(); alert("Importé : "+msg.join(" + ")+"."); return; }
+  }
+  alert("Format inattendu.");
+}
+function importJSON(){
+  var raw=(state.imp||"").trim(); if(!raw) return;
+  try{ var d=JSON.parse(raw); state.imp=""; applyImport(d); }
+  catch(e){ alert("JSON illisible."); }
+}
+function downloadBackup(){
+  try{
+    var slug=slugify(APP_NAME);
+    var blob=new Blob([JSON.stringify({entries:state.entries, analysis:state.analysis},null,2)],{type:"application/json"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a"); a.href=url; a.download=slug+"/data/"+slug+".json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); },1000);
+  }catch(e){ alert("Téléchargement bloqué ici. Utilise plutôt Exporter puis Copier."); }
+}
+function importFile(input){
+  var f=input.files&&input.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(){ try{ applyImport(JSON.parse(r.result)); }catch(e){ alert("Fichier illisible."); } };
+  r.readAsText(f);
+}
+
+function computeBloat(entries){
+  var triggers=[];
+  entries.forEach(function(e){
+    if(e.type==="meal"){ var tags=(e.tags||[]).slice(); if(e.sport) tags.push("Sport"); triggers.push({t:ts(e),tags:tags}); }
+    else if(e.type==="sport"){ triggers.push({t:ts(e),tags:["Sport"]}); }
+  });
+  var sy=entries.filter(function(e){return e.type==="symptom"&&e.sev>=2;});
+  var stat={}, all=[];
+  triggers.forEach(function(m){
+    var mt=m.t, best=null;
+    sy.forEach(function(s){ var st=ts(s); if(st>mt && st-mt<=WINDOW_MS && (best==null||st<best)) best=st; });
+    var d=best!=null?Math.round((best-mt)/60000):null; if(d!=null) all.push(d);
+    m.tags.forEach(function(t){ stat[t]=stat[t]||{name:t,total:0,bad:0,delays:[]}; stat[t].total++; if(best!=null){ stat[t].bad++; if(d!=null) stat[t].delays.push(d); } });
+  });
+  var suspects=Object.keys(stat).map(function(k){return stat[k];}).filter(function(s){return s.total>=2;}).map(function(s){ return {name:s.name,total:s.total,bad:s.bad,rate:s.bad/s.total,med:median(s.delays)}; }).sort(function(a,b){return b.rate-a.rate||b.bad-a.bad||b.total-a.total;});
+  return {suspects:suspects, avgDelay:median(all)};
+}
+function computePain(entries){
+  var pains=entries.filter(function(e){return e.type==="pain"&&typeof e.level==="number";});
+  var painByDay={}; pains.forEach(function(p){ painByDay[p.date]=p.level; });
+  var tagsByDay={}; entries.filter(function(e){return e.type==="meal";}).forEach(function(m){ tagsByDay[m.date]=tagsByDay[m.date]||{}; (m.tags||[]).forEach(function(t){ tagsByDay[m.date][t]=true; }); });
+  var overall=mean(pains.map(function(p){return p.level;}));
+  var allTags={}; entries.filter(function(e){return e.type==="meal";}).forEach(function(m){ (m.tags||[]).forEach(function(t){ allTags[t]=true; }); });
+  var foodStat={};
+  Object.keys(allTags).forEach(function(t){
+    var w=[], wo=[];
+    Object.keys(painByDay).forEach(function(day){
+      var p1=addDay(day,-1), p2=addDay(day,-2);
+      var ate=(tagsByDay[p1]&&tagsByDay[p1][t])||(tagsByDay[p2]&&tagsByDay[p2][t]);
+      (ate?w:wo).push(painByDay[day]);
+    });
+    if(w.length>=3) foodStat[t]={name:t,avgWith:mean(w),avgWithout:mean(wo),n:w.length};
+  });
+  var foods=Object.keys(foodStat).map(function(k){return foodStat[k];}).filter(function(f){return f.avgWithout!=null;}).map(function(f){ f.delta=Math.round((f.avgWith-f.avgWithout)*10)/10; return f; }).sort(function(a,b){return b.delta-a.delta;});
+  var days=[]; for(var i=13;i>=0;i--){ var d=new Date(); d.setDate(d.getDate()-i); var iso=d.toISOString().slice(0,10); days.push({iso:iso,level:painByDay[iso]!=null?painByDay[iso]:null}); }
+  return {overall:overall,foods:foods,days:days,count:pains.length};
+}
+function groupEntries(entries){
+  var g={}; entries.forEach(function(e){ (g[e.date]=g[e.date]||[]).push(e); });
+  Object.keys(g).forEach(function(k){ g[k].sort(function(a,b){ var pa=a.type==="pain"?1:0, pb=b.type==="pain"?1:0; return pb-pa||ts(b)-ts(a); }); });
+  return Object.keys(g).map(function(k){return [k,g[k]];}).sort(function(a,b){return a[0]<b[0]?1:-1;});
+}
+
+function chipStyle(on,color){ return on?("background:"+color+";border-color:"+color+";color:#fff"):"color:var(--ink);background:transparent"; }
+function chip(label,act,val,on,color){ return '<span class="chip" data-act="'+act+'" data-val="'+esc(val)+'" style="'+chipStyle(on,color)+'">'+esc(label)+'</span>'; }
+function chipFlex(label,act,val,on,color){ return '<span class="chip" data-act="'+act+'" data-val="'+esc(val)+'" style="flex:1;text-align:center;'+chipStyle(on,color)+'">'+esc(label)+'</span>'; }
+
+function renderAnalysis(txt){
+  var lines=String(txt||"").split("\n"), html="", inList=false;
+  function closeList(){ if(inList){ html+="</ul>"; inList=false; } }
+  lines.forEach(function(raw){
+    var line=raw.trim();
+    if(!line){ closeList(); return; }
+    var mh=line.match(/^#{1,3}\s+(.*)$/);
+    if(mh){ closeList(); html+='<div style="font-family:var(--serif);font-size:14.5px;font-weight:700;color:var(--brand);margin:12px 0 4px">'+esc(mh[1])+'</div>'; return; }
+    if(/^[-•*]\s+/.test(line)){ if(!inList){ html+='<ul style="margin:4px 0 6px 2px;padding-left:18px">'; inList=true; } html+='<li style="margin:3px 0;font-size:13px;line-height:1.45">'+esc(line.replace(/^[-•*]\s+/,""))+'</li>'; return; }
+    closeList();
+    html+='<div style="margin:4px 0;font-size:13px;line-height:1.45">'+esc(line)+'</div>';
+  });
+  closeList();
+  return html;
+}
+
+function headerHTML(){ return '<header class="hdr"><div class="wrap"><div class="eyebrow">'+esc(APP_NAME)+'</div><div class="tagline">Eat wise, feel nice.</div><h1 class="h1">Écoute ton corps, parle à ton assiette.</h1><p class="sub">Observe, comprends, ajuste — et sens-toi mieux.</p></div></header>'; }
+function tabsHTML(){ var tabs=[["log","Ajouter"],["history","Journal"+(state.entries.length?" · "+state.entries.length:"")],["analyse","Analyse"],["data","Données"]]; return '<div class="wrap tabs">'+tabs.map(function(t){return '<button class="tab '+(state.tab===t[0]?"on":"")+'" data-act="tab" data-val="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>'; }
+function footerHTML(){ return '<footer class="foot">Données gardées sur ton téléphone. Pense à télécharger une sauvegarde. · Suivi personnel, pas un avis médical — parles-en à ton médecin/rhumatologue. · v'+VERSION+'</footer>'; }
+
+function logHTML(){
+  var seg=[["meal","🍽 Mangé"],["symptom","🎈 Ballonné"],["pain","🔥 Douleur"],["sport","🏃 Sport"]].map(function(k){return '<button class="segbtn '+(state.kind===k[0]?"on":"")+'" data-act="kind" data-val="'+k[0]+'">'+k[1]+'</button>';}).join("");
+  var dt='<div class="row"><div style="flex:1"><label class="lab">Date</label><input type="date" class="field" data-field="date" value="'+state.date+'"></div>'+(state.kind!=="pain"?'<div style="width:120px"><label class="lab">Heure</label><input type="time" class="field" data-field="time" value="'+state.time+'"></div>':'')+'</div>';
+  var form="";
+  if(state.kind==="meal"){
+    form='<div style="margin-bottom:6px"><label class="lab">Repas / boisson</label><input class="field" data-field="meal" value="'+esc(state.meal)+'" placeholder="ex. chou-fleur, oignon, bœuf, Hoegaarden"></div>'
+      +'<div id="tagpreview" class="muted" style="font-size:12px;margin:0 0 16px">'+esc(tagPreviewText(state.meal))+'</div>'
+      +'<button class="btn dark" data-act="addMeal">Enregistrer le repas</button>';
+  } else if(state.kind==="symptom"){
+    var sev=SEV.map(function(l){return chipFlex(l.label,"sev",l.v,state.sev===l.v,l.color);}).join("");
+    form='<div style="margin-bottom:14px"><label class="lab">Intensité</label><div style="display:flex;gap:8px">'+sev+'</div></div>'
+      +'<div style="margin-bottom:16px"><label class="lab">Note</label><input class="field" data-field="note" value="'+esc(state.note)+'" placeholder="ex. ventre gonflé, gaz"></div>'
+      +'<button class="btn alert" data-act="addSymptom">Enregistrer le ballonnement</button>';
+  } else if(state.kind==="sport"){
+    form='<div style="margin-bottom:16px"><label class="lab">Activité</label><input class="field" data-field="snote" value="'+esc(state.snote)+'" placeholder="ex. vélo elliptique 30 min"></div>'
+      +'<button class="btn ochre" data-act="addSport">Enregistrer le sport</button>';
+  } else {
+    form='<div style="margin-bottom:6px"><label class="lab">Niveau de douleur (0 = rien, 10 = très fort)</label>'
+      +'<input type="range" min="0" max="10" data-field="pain" value="'+state.pain+'" style="width:100%">'
+      +'<div id="painval" style="text-align:center;font-family:var(--serif);font-size:22px;color:var(--alert)">'+state.pain+'</div></div>'
+      +'<div style="margin:10px 0 14px">'+chip((state.stiff?"✓ ":"")+"Raideur matinale","stiff","",state.stiff,"var(--ochre)")+'</div>'
+      +'<div style="margin-bottom:16px"><label class="lab">Note</label><input class="field" data-field="pnote" value="'+esc(state.pnote)+'" placeholder="ex. bas du dos, matin difficile"></div>'
+      +'<button class="btn alert" data-act="addPain">Enregistrer la douleur du jour</button>';
+  }
+  return '<div class="card"><div class="seg">'+seg+'</div>'+dt+form+'</div>';
+}
+
+function historyHTML(){
+  if(state.entries.length===0) return '<div class="card center muted">Rien encore. Enregistre un repas, puis ton ressenti plus tard.</div>';
+  return groupEntries(state.entries).map(function(pair){
+    var d=pair[0], list=pair[1];
+    var items=list.map(function(e){
+      if(e.type==="meal"){
+        var tg=e.tags||[];
+        var pills=(tg.length||e.sport)?'<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0">'+tg.map(function(t){return '<span class="tagpill">'+esc(t)+'</span>';}).join("")+(e.sport?'<span class="tagpill sport">Sport après</span>':'')+'</div>':'';
+        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--brand)"><span class="meta">'+esc(e.time)+' · repas</span>'+(e.meal?'<div style="font-size:15.5px;margin:6px 0 4px">'+esc(e.meal)+'</div>':'')+pills+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
+      }
+      if(e.type==="sport"){
+        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--ochre)"><div class="between"><span class="meta">'+esc(e.time)+' · sport</span><span style="font-size:12.5px;font-weight:600;color:var(--ochre)">🏃 Sport</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
+      }
+      if(e.type==="symptom"){ var s=null; for(var i=0;i<SEV.length;i++){ if(SEV[i].v===e.sev) s=SEV[i]; } if(!s) s=SEV[2];
+        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid '+s.color+'"><div class="between"><span class="meta">'+esc(e.time)+' · ballonné</span><span style="font-size:12.5px;font-weight:600;color:'+s.color+'">🎈 '+s.label+'</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
+      }
+      return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--alert)"><div class="between"><span class="meta">douleur du jour</span><span style="font-size:12.5px;font-weight:600;color:var(--alert)">🔥 '+e.level+'/10'+(e.stiff?' · raideur':'')+'</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
+    }).join("");
+    return '<div style="margin-bottom:18px"><div class="daytitle">'+fmtDate(d)+'</div>'+items+'</div>';
+  }).join("");
+}
+
+function analyseHTML(){
+  var b=computeBloat(state.entries), p=computePain(state.entries);
+  var claudeBlock='';
+  if(state.analysis && state.analysis.text){ claudeBlock='<div class="card"><span class="cardhd">Analyse de Claude</span><p class="muted" style="font-size:11.5px;margin:2px 0 8px">Établie le '+state.analysis.date+'</p>'+renderAnalysis(state.analysis.text)+'</div>'; }
+  var h=claudeBlock+'<div class="sectitle">Ballonnements</div>';
+  if(b.avgDelay!=null) h+='<div class="card" style="background:var(--brand);color:#F1ECE0;border:none"><div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.85">Délai typique</div><div style="font-family:var(--serif);font-size:26px;font-weight:600">≈ '+b.avgDelay+' min après le déclencheur</div></div>';
+  if(b.suspects.length===0) h+='<div class="card center muted">Continue d\'enregistrer tes repas et ton ressenti.</div>';
+  b.suspects.forEach(function(s){ var col=s.rate>=.6?"var(--alert)":s.rate>=.3?"var(--ochre)":"var(--good)";
+    h+='<div class="card" style="padding:14px;margin-bottom:10px"><div class="between" style="margin-bottom:8px"><b>'+esc(s.name)+'</b><span class="meta">'+s.bad+'/'+s.total+' · '+Math.round(s.rate*100)+'%'+(s.med!=null?' · ~'+s.med+'min':'')+'</span></div><div class="bar"><div class="barfill" style="width:'+Math.max(4,s.rate*100)+'%;background:'+col+'"></div></div></div>';
+  });
+  h+='<div class="sectitle" style="margin-top:18px">Douleurs (spondylarthrite)</div>';
+  if(p.count===0){ h+='<div class="card center muted">Note ton ressenti chaque jour pour voir la courbe et les liens.</div>'; return h; }
+  var bars=p.days.map(function(d){ var hh=d.level==null?0:Math.max(3,(d.level/10)*80); return '<div class="daycol"><div class="dayfill" style="height:'+hh+'px;background:'+(d.level==null?"#E2DBCB":"var(--alert)")+'"></div><span class="dayx">'+d.iso.slice(8,10)+'</span></div>'; }).join("");
+  h+='<div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:2px">14 derniers jours · moyenne '+(p.overall!=null?p.overall:"—")+'/10</div><div class="daybars">'+bars+'</div></div>';
+  if(p.foods.length>0){
+    var rows=p.foods.map(function(f){ var col=f.delta>=1?"var(--alert)":f.delta<=-1?"var(--good)":"var(--muted)"; var sign=f.delta>0?"+":""; return '<div class="foodrow"><span>'+esc(f.name)+' <span class="muted" style="font-size:12px">('+f.n+'j)</span></span><span class="meta"><b style="color:'+col+'">'+sign+f.delta+'</b> <span class="muted">('+f.avgWith+' vs '+f.avgWithout+')</span></span></div>'; }).join("");
+    h+='<div class="card"><div style="font-size:13px;color:var(--muted);margin-bottom:10px">Douleur moyenne les jours où l\'aliment a été mangé <b>la veille ou l\'avant-veille</b>, vs les autres jours. La spondylarthrite réagit avec retard : les repas du jour même sont ignorés. Écart positif = piste à surveiller.</div>'+rows+'</div>';
+  } else {
+    h+='<div class="card center muted">Continue d\'enregistrer tes repas et ton ressenti (min. 3 jours par aliment).</div>';
+  }
+  h+='<div class="card muted" style="font-size:12px">Liens indicatifs et bruités : la spondylarthrite évolue par poussées. À croiser avec ton rhumatologue.</div>';
+  return h;
+}
+
+function dataHTML(){
+  var slug=slugify(APP_NAME);
+  return '<div class="card"><span class="cardhd">Sauvegarde & analyse</span><p class="muted" style="font-size:13px">Exporte un bloc (prompt + données) à coller dans Claude Opus pour l\'analyse détaillée, ou télécharge un fichier .json comme sauvegarde.</p><button class="btn brand" data-act="openExport">Exporter pour analyse</button><button class="btn outline mt10" data-act="download">Télécharger la sauvegarde (.json)</button><p class="muted" style="font-size:11.5px;margin:8px 0 0">Fichier : <span class="meta">'+slug+'/data/'+slug+'.json</span> (nom fixe, écrase l\'ancien). Selon le navigateur, le sous-dossier peut être aplati.</p></div>'
+  +'<div class="card"><span class="cardhd">Importer</span><p class="muted" style="font-size:13px">Colle le JSON que Claude te renvoie (analyse seule, ou données complètes), ou restaure depuis un fichier .json.</p><label style="display:block;margin-bottom:12px;font-size:14px;color:var(--brand);font-weight:600">Depuis un fichier<input type="file" accept="application/json,.json" data-field="file" style="display:block;margin-top:6px;font-size:13px;color:var(--ink)"></label><textarea class="field" data-field="imp" placeholder=\'{"analysis":{ ... }}  ou  {"entries":[ ... ]}\' style="min-height:110px;font-family:var(--mono);font-size:12.5px">'+esc(state.imp)+'</textarea><button class="btn outline mt10" data-act="importText">Importer le texte collé</button></div>'
+  +'<div class="card muted" style="font-size:12.5px">'+state.entries.length+' entrées enregistrées.'+(state.analysis?' · Analyse du '+state.analysis.date+'.':'')+'</div>';
+}
+
+function exportModalHTML(){
+  return '<div class="modalbg" id="modalbg"><div class="modalbox"><div class="between" style="align-items:center;margin-bottom:10px"><b style="font-family:var(--serif);font-size:18px">Exporter pour analyse</b><button data-act="closeExport" style="background:none;border:none;color:var(--alert);font-size:15px;cursor:pointer;font-family:var(--sans)">Fermer</button></div><p class="muted" style="font-size:13px;margin:0 0 10px">Copie tout ce bloc et colle-le dans une conversation Claude (Opus). Si le bouton ne copie pas, appuie longuement dans le cadre → « Tout sélectionner » → « Copier ».</p><textarea class="field" readonly id="exporttext" style="min-height:220px;font-family:var(--mono);font-size:12px">'+esc(buildExport())+'</textarea><button class="btn brand mt10" data-act="copy">'+(state.copied?"Copié ✓":"Copier")+'</button></div></div>';
+}
+
+function bodyHTML(){
+  if(state.tab==="log") return logHTML();
+  if(state.tab==="history") return historyHTML();
+  if(state.tab==="analyse") return analyseHTML();
+  return dataHTML();
+}
+function render(){
+  document.getElementById("app").innerHTML=headerHTML()+tabsHTML()+'<main class="wrap">'+bodyHTML()+'</main>'+footerHTML()+(state.showExport?exportModalHTML():"");
+}
+
+var app=document.getElementById("app");
+app.addEventListener("click",function(e){
+  if(e.target.id==="modalbg"){ state.showExport=false; render(); return; }
+  if(e.target.id==="exporttext"){ e.target.select(); return; }
+  var el=e.target.closest("[data-act]"); if(!el) return;
+  var act=el.getAttribute("data-act"), val=el.getAttribute("data-val");
+  if(act==="tab"){ state.tab=val; render(); }
+  else if(act==="kind"){ state.kind=val; render(); }
+  else if(act==="sev"){ state.sev=+val; render(); }
+  else if(act==="stiff"){ state.stiff=!state.stiff; render(); }
+  else if(act==="addMeal"){ addMeal(); }
+  else if(act==="addSymptom"){ addSymptom(); }
+  else if(act==="addSport"){ addSport(); }
+  else if(act==="addPain"){ addPain(); }
+  else if(act==="del"){ removeEntry(val); }
+  else if(act==="openExport"){ state.showExport=true; state.copied=false; render(); }
+  else if(act==="closeExport"){ state.showExport=false; render(); }
+  else if(act==="copy"){ copyExport(); }
+  else if(act==="download"){ downloadBackup(); }
+  else if(act==="importText"){ importJSON(); }
+});
+app.addEventListener("input",function(e){
+  var el=e.target.closest("[data-field]"); if(!el) return;
+  var f=el.getAttribute("data-field");
+  if(f==="pain"){ state.pain=+el.value; var pv=document.getElementById("painval"); if(pv) pv.textContent=el.value; return; }
+  if(f==="meal"){ state.meal=el.value; var tp=document.getElementById("tagpreview"); if(tp) tp.textContent=tagPreviewText(el.value); return; }
+  state[f]=el.value;
+});
+app.addEventListener("change",function(e){
+  var el=e.target.closest("[data-field]"); if(!el) return;
+  if(el.getAttribute("data-field")==="file") importFile(el);
+});
+
+render();
+</script>
+<script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
     navigator.serviceWorker.register("sw.js").catch(function () {});
   });
 }
-  </script>
+</script>
 </body>
 </html>
