@@ -32,4 +32,9 @@ Tuiles, formulaires, Journal, Analyse (titres de sections, graphe, carte du mati
 rapport médecin (la note « raideur ≥ 30 minutes = inflammatoire » ne s'affiche que si la case
 du matin garde son sens par défaut), prompts d'analyse et de recettes (situation santé).
 
-## P09.3 — Docs + gate (golden recalé) + déploiement 3.23.0 · SAFE · low · ⏳ gate en cours
+## P09.4 — Bouton « Buy me a coffee » · SAFE · low · ✅ DONE (3.23.1)
+
+Page créée par Thomas (buymeacoffee.com/logicaudio) : lien ☕ dans le footer + carte
+« Soutenir EatWise » dans Données. App gratuite, dons volontaires.
+
+## P09.3 — Docs + gate (golden recalé) + déploiement · SAFE · low · ⏳ gate OK, déploiement bloqué par un incident intermittent GitHub Pages (deploy-pages), relances en cours

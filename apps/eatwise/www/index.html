@@ -76,7 +76,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.23.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.23.1", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 var LLM_KEY="eatwise-llm";
 var LLMS={
@@ -461,7 +461,7 @@ function renderAnalysis(txt){
 
 function headerHTML(){ return '<header class="hdr"><div class="wrap"><div class="eyebrow">'+esc(APP_NAME)+'</div><div class="tagline">Eat wise, feel nice.</div><h1 class="h1">Écoute ton corps, parle à ton assiette.</h1><p class="sub">Observe, comprends, ajuste — et sens-toi mieux.</p></div></header>'; }
 function tabsHTML(){ var dot=painLoggedToday()?"":' <span style="color:var(--alert)">●</span>'; var tabs=[["log","Ajouter"+dot],["history","Journal"+(state.entries.length?" · "+state.entries.length:"")],["analyse","Analyse"],["recipes","Recettes"],["data","Données"]]; return '<div class="wrap tabs">'+tabs.map(function(t){return '<button class="tab '+(state.tab===t[0]?"on":"")+'" data-act="tab" data-val="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>'; }
-function footerHTML(){ return '<footer class="foot">Données gardées sur ton téléphone. Pense à télécharger une sauvegarde. · Suivi personnel, pas un avis médical — parles-en à ton médecin/rhumatologue. · v'+VERSION+'</footer>'; }
+function footerHTML(){ return '<footer class="foot">Données gardées sur ton téléphone. Pense à télécharger une sauvegarde. · Suivi personnel, pas un avis médical — parles-en à ton médecin. · <a href="https://buymeacoffee.com/logicaudio" target="_blank" rel="noopener" style="color:var(--brand);text-decoration:none">☕ Offre-moi un café</a> · v'+VERSION+'</footer>'; }
 
 function logHTML(){
   var KINDS=[["meal","🍽","Mangé","#3FBAA0"],["symptom","🎈",LBL("fast"),"#F09A4E"],["pain","🔥",LBL("daily"),"#E2707B"],["sport","🏃","Sport","#8B7BC7"]];
@@ -581,6 +581,7 @@ function dataHTML(){
   +'<label class="lab">Suivi quotidien 0-10 (défaut : Douleur)</label><input class="field" data-field="lblDaily" value="'+esc((state.labels||{}).daily||"")+'" placeholder="Douleur" style="margin-bottom:10px">'
   +'<label class="lab">Case du matin (défaut : Raideur matinale)</label><input class="field" data-field="lblFlag" value="'+esc((state.labels||{}).flag||"")+'" placeholder="Raideur matinale" style="margin-bottom:10px">'
   +'<label class="lab">Ma situation santé (utilisée par l\'IA)</label><input class="field" data-field="lblCond" value="'+esc((state.labels||{}).condition||"")+'" placeholder="'+esc(DEFAULT_LABELS.condition)+'"></div>'
+  +'<div class="card"><span class="cardhd">Soutenir EatWise ☕</span><p class="muted" style="font-size:13px;margin:4px 0 12px">EatWise est gratuite et sans publicité. Si elle t\'aide, tu peux offrir un café à son créateur.</p><a class="btn outline" style="display:block;text-align:center;text-decoration:none" href="https://buymeacoffee.com/logicaudio" target="_blank" rel="noopener">☕ Buy me a coffee</a></div>'
   +'<div class="card"><span class="cardhd">Pour ton médecin</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Un rapport imprimable (PDF via le menu d\'impression du navigateur) à montrer à ton rhumatologue ou diététicien.</p><button class="btn brand" data-act="report">Ouvrir le rapport imprimable</button></div>'
   +'<div class="card muted" style="font-size:12.5px">'+state.entries.length+' entrées enregistrées.'+(state.analysis?' · Analyse IA du '+state.analysis.date+'.':' · Pas encore d\'analyse IA.')+'</div>';
 }

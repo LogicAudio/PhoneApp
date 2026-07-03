@@ -1,4 +1,4 @@
-// EatWise v3.23.0 — relance déploiement
+// EatWise v3.23.1
 const CACHE = "eatwise-v13";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon-2.svg", "./icon-192.png", "./icon-512.png"];
 self.addEventListener("install", (e) => {
