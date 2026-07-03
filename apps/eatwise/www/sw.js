@@ -1,3 +1,4 @@
+// EatWise v3.15.1
 const CACHE = "eatwise-v3";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
 self.addEventListener("install", (e) => {
