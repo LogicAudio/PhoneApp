@@ -1,6 +1,5 @@
 ---
-status: in-progress
-priority: now
+status: done
 ---
 
 # Plan 08 — Retirer les recettes de la boucle d'analyse
@@ -24,4 +23,4 @@ RECETTES » de PARTIE 1, et `'## Recettes'` de la liste de titres de PARTIE 2. M
 `eatwise-prompt.md` synchronisé (note de conception mise à jour). Texte UI « avec des idées
 recettes » retiré de la carte d'analyse.
 
-## P08.2 — Gate (golden recalé) + déploiement 3.22.0 · SAFE · low · ⏳ gate OK, déploiement en cours
+## P08.2 — Gate (golden recalé) + déploiement 3.22.0 · SAFE · low · ✅ DONE (confirmée en prod)

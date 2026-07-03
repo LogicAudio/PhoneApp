@@ -43,3 +43,8 @@ cadrage BASDAI des rhumatologues) : journal 14 jours horodaté avec délais en t
 synthèse en indicateurs 0-10, complétude du journal, courbe 28 jours avec axe Y, bouton
 Imprimer/PDF, viewport mobile. Graphe in-app : axe Y + marqueurs séparés (échelles
 distinctes). Confirmée en production (commit 9f967e3).
+
+## 2026-07-03 — Plan 08 done: EatWise 3.22.0 (analyse sans recettes)
+Séparation nette des circuits : le prompt d'analyse (v3) ne demande plus de recettes (point
+supprimé, interdiction explicite, titre ## Recettes retiré) — l'onglet Recettes reste le seul
+circuit, en lecture directe. Golden recalé sur demande. Confirmée en production (ad0dd5c).
