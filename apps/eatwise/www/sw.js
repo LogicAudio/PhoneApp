@@ -1,5 +1,5 @@
-// EatWise v3.24.1
-const CACHE = "eatwise-v16";
+// EatWise v3.24.2
+const CACHE = "eatwise-v17";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon-2.svg", "./icon-192.png", "./icon-512.png"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
