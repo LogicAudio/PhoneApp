@@ -76,7 +76,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.17.1", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.18.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 
 var mem={};
@@ -114,7 +114,7 @@ var state={
   meal:"",
   sev:2, note:"",
   pain:0, stiff:false, pnote:"",
-  snote:"",
+  snote:"", recipeNote:"",
   showExport:false, copied:false, imp:""
 };
 
@@ -225,8 +225,7 @@ function importJSON(){
   if(d==null){ alert("Je n'ai pas trouvé d'analyse dans ce texte. Colle la réponse complète de Claude (ou son bloc {\"analysis\": ...})."); return; }
   state.imp=""; applyImport(d);
 }
-function sendToClaude(){
-  var txt=buildExport();
+function copyAndOpenClaude(txt){
   try{
     if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt); }
     else { var ta=document.createElement("textarea"); ta.value=txt; ta.style.position="fixed"; ta.style.top="0"; ta.style.opacity="0"; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); }
@@ -235,6 +234,24 @@ function sendToClaude(){
   if(q.length<6000) url+="?q="+q;
   window.open(url,"_blank");
 }
+function sendToClaude(){ copyAndOpenClaude(buildExport()); }
+function buildRecipePrompt(kind){
+  var labels={dejeuner:"déjeuner (petit-déjeuner) rapide à préparer",diner:"dîner (repas de midi)",souper:"souper (repas du soir)"};
+  var b=computeBloat(state.entries), p=computePain(state.entries);
+  var safe=[], avoid=[];
+  b.suspects.forEach(function(s){ if(s.name==="Sport"||s.name==="Sport après repas") return; if(s.rate>=0.5){ avoid.push(s.name+" ("+Math.round(s.rate*100)+"% de ballonnements)"); } else if(s.rate<=0.2){ safe.push(s.name); } });
+  p.foods.forEach(function(f){ if(f.delta>=1) avoid.push(f.name+" (douleur +"+f.delta+" le lendemain/surlendemain)"); });
+  var an=(state.analysis&&state.analysis.text)?("MA DERNIÈRE ANALYSE ("+state.analysis.date+") :\n"+state.analysis.text+"\n\n"):"";
+  var wish=(state.recipeNote||"").trim();
+  return "Tu es un chef cuisinier doublé d'un nutritionniste, attentif aux troubles digestifs (approche FODMAP) et à l'inflammation chronique (spondylarthrite). Propose-moi 3 idées de "+labels[kind]+" pour aujourd'hui, simples et appétissantes.\n\n"
+   +"RÈGLES :\n- Privilégie mes aliments bien tolérés et évite mes suspects (listes ci-dessous).\n- Ingrédients courants, préparation réaliste"+(kind==="dejeuner"?" en moins de 10 minutes":"")+".\n- Pour chaque idée : nom, ingrédients, préparation en 3-5 étapes, et pourquoi elle me convient.\n- Si un ingrédient est douteux pour moi, propose une alternative.\n- Pas un avis médical : des suggestions culinaires prudentes, rien d'autre.\n\n"
+   +(safe.length?"ALIMENTS QUI ME RÉUSSISSENT :\n- "+safe.join("\n- ")+"\n\n":"")
+   +(avoid.length?"MES SUSPECTS À ÉVITER :\n- "+avoid.join("\n- ")+"\n\n":"")
+   +(wish?"MES ENVIES / CONTRAINTES DU JOUR : "+wish+"\n\n":"")
+   +an
+   +"Réponds en français, directement avec les 3 idées.";
+}
+function sendRecipe(kind){ copyAndOpenClaude(buildRecipePrompt(kind)); }
 function downloadBackup(){
   try{
     var slug=slugify(APP_NAME);
@@ -316,7 +333,7 @@ function renderAnalysis(txt){
 }
 
 function headerHTML(){ return '<header class="hdr"><div class="wrap"><div class="eyebrow">'+esc(APP_NAME)+'</div><div class="tagline">Eat wise, feel nice.</div><h1 class="h1">Écoute ton corps, parle à ton assiette.</h1><p class="sub">Observe, comprends, ajuste — et sens-toi mieux.</p></div></header>'; }
-function tabsHTML(){ var tabs=[["log","Ajouter"],["history","Journal"+(state.entries.length?" · "+state.entries.length:"")],["analyse","Analyse"],["data","Données"]]; return '<div class="wrap tabs">'+tabs.map(function(t){return '<button class="tab '+(state.tab===t[0]?"on":"")+'" data-act="tab" data-val="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>'; }
+function tabsHTML(){ var tabs=[["log","Ajouter"],["history","Journal"+(state.entries.length?" · "+state.entries.length:"")],["analyse","Analyse"],["recipes","Recettes"],["data","Données"]]; return '<div class="wrap tabs">'+tabs.map(function(t){return '<button class="tab '+(state.tab===t[0]?"on":"")+'" data-act="tab" data-val="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>'; }
 function footerHTML(){ return '<footer class="foot">Données gardées sur ton téléphone. Pense à télécharger une sauvegarde. · Suivi personnel, pas un avis médical — parles-en à ton médecin/rhumatologue. · v'+VERSION+'</footer>'; }
 
 function logHTML(){
@@ -381,14 +398,14 @@ function analyseHTML(){
     var hist=state.analysisHistory.map(function(hh){ return '<details style="margin:6px 0"><summary style="cursor:pointer;font-size:13px;color:var(--muted)">Analyse du '+esc(hh.date)+'</summary><div style="padding:4px 0 2px">'+renderAnalysis(hh.text)+'</div></details>'; }).join("");
     claudeBlock+='<div class="card"><span class="cardhd" style="font-size:15px">Analyses précédentes</span>'+hist+'</div>';
   }
-  var h=claudeBlock+'<div class="sectitle">Ballonnements</div>';
+  var h='<div class="sectitle">Ballonnements</div>';
   if(b.avgDelay!=null) h+='<div class="card" style="background:var(--brand);color:#FFFFFF;border:none"><div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.85">Délai typique</div><div style="font-family:var(--serif);font-size:26px;font-weight:600">≈ '+b.avgDelay+' min après le déclencheur</div></div>';
   if(b.suspects.length===0) h+='<div class="card center muted">Continue d\'enregistrer tes repas et ton ressenti.</div>';
   b.suspects.forEach(function(s){ var col=s.rate>=.6?"var(--alert)":s.rate>=.3?"var(--ochre)":"var(--good)";
     h+='<div class="card" style="padding:14px;margin-bottom:10px"><div class="between" style="margin-bottom:8px"><b>'+esc(s.name)+'</b><span class="meta">'+s.bad+'/'+s.total+' · '+Math.round(s.rate*100)+'%'+(s.med!=null?' · ~'+s.med+'min':'')+'</span></div><div class="bar"><div class="barfill" style="width:'+Math.max(4,s.rate*100)+'%;background:'+col+'"></div></div></div>';
   });
   h+='<div class="sectitle" style="margin-top:18px">Douleurs (spondylarthrite)</div>';
-  if(p.count===0){ h+='<div class="card center muted">Note ton ressenti chaque jour pour voir la courbe et les liens.</div>'; return h; }
+  if(p.count===0){ h+='<div class="card center muted">Note ton ressenti chaque jour pour voir la courbe et les liens.</div>'; return h+claudeBlock; }
   var bars=p.days.map(function(d){ var hh=d.level==null?0:Math.max(3,(d.level/10)*80); return '<div class="daycol"><div class="dayfill" style="height:'+hh+'px;background:'+(d.level==null?"#E8EBED":"var(--alert)")+'"></div><span class="dayx">'+d.iso.slice(8,10)+'</span></div>'; }).join("");
   h+='<div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:2px">14 derniers jours · moyenne '+(p.overall!=null?p.overall:"—")+'/10</div><div class="daybars">'+bars+'</div></div>';
   if(p.foods.length>0){
@@ -398,9 +415,17 @@ function analyseHTML(){
     h+='<div class="card center muted">Continue d\'enregistrer tes repas et ton ressenti (min. 3 jours par aliment).</div>';
   }
   h+='<div class="card muted" style="font-size:12px">Liens indicatifs et bruités : la spondylarthrite évolue par poussées. À croiser avec ton rhumatologue.</div>';
-  return h;
+  return h+claudeBlock;
 }
 
+function recipesHTML(){
+  var kinds=[["dejeuner","🥐","Déjeuner rapide"],["diner","🍽","Dîner"],["souper","🍲","Souper"]];
+  var btns=kinds.map(function(k){ return '<button class="btn brand mt10" data-act="recipe" data-val="'+k[0]+'">'+k[1]+' '+k[2]+'</button>'; }).join("");
+  return '<div class="card"><span class="cardhd">Mes recettes du jour</span><p class="muted" style="font-size:13px;margin:4px 0 12px">L\'IA compose 3 idées à partir de tes aliments bien tolérés, de tes suspects'+(state.analysis?' et de ton analyse du '+state.analysis.date:'')+'. Ton prompt est copié et Claude s\'ouvre — il se colle aussi dans n\'importe quelle IA.</p>'
+  +'<label class="lab">Envies / contraintes du jour (optionnel)</label><input class="field" data-field="recipeNote" value="'+esc(state.recipeNote||"")+'" placeholder="ex. reste de poulet, envie de soupe, 15 min max">'
+  +btns+'</div>'
+  +(state.analysis?'':'<div class="card muted" style="font-size:12.5px">💡 Lance d\'abord une analyse (onglet Analyse) pour des recettes encore mieux ciblées — mais ça marche déjà avec ton journal seul.</div>');
+}
 function dataHTML(){
   var slug=slugify(APP_NAME);
   return '<div class="card"><span class="cardhd">Sauvegarde</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Tes données vivent uniquement sur ce téléphone. Garde une copie de temps en temps.</p><button class="btn outline" data-act="download">Télécharger mes données (.json)</button><label style="display:block;margin-top:12px;font-size:14px;color:var(--brand);font-weight:600">Restaurer depuis une sauvegarde<input type="file" accept="application/json,.json" data-field="file" style="display:block;margin-top:6px;font-size:13px;color:var(--ink)"></label><p class="muted" style="font-size:11.5px;margin:8px 0 0">Fichier : <span class="meta">'+slug+'/data/'+slug+'.json</span> (nom fixe, écrase l\'ancien).</p></div>'
@@ -415,6 +440,7 @@ function bodyHTML(){
   if(state.tab==="log") return logHTML();
   if(state.tab==="history") return historyHTML();
   if(state.tab==="analyse") return analyseHTML();
+  if(state.tab==="recipes") return recipesHTML();
   return dataHTML();
 }
 function render(){
@@ -438,6 +464,7 @@ app.addEventListener("click",function(e){
   else if(act==="del"){ removeEntry(val); }
   else if(act==="again"){ repeatMeal(val); }
   else if(act==="sendClaude"){ sendToClaude(); }
+  else if(act==="recipe"){ sendRecipe(val); }
   else if(act==="openExport"){ state.showExport=true; state.copied=false; render(); }
   else if(act==="closeExport"){ state.showExport=false; render(); }
   else if(act==="copy"){ copyExport(); }
