@@ -1,6 +1,5 @@
 ---
-status: in-progress
-priority: now
+status: done
 ---
 
 # Plan 07 — Rapport médecin v2 (état de l'art du reporting alimentation/rhumatologie)
@@ -41,4 +40,4 @@ Deux référentiels combinés :
 6. **Corrélations** en toutes lettres + **Méthode & limites** (fenêtre de 4 heures,
    corrélation veille/avant-veille, seuil de 3 jours, auto-observation, pas un avis médical).
 
-## P07.2 — Gate + déploiement 3.21.0 · SAFE · low · ⏳ gate en cours
+## P07.2 — Gate + déploiement 3.21.0 · SAFE · low · ✅ DONE (confirmée en prod)

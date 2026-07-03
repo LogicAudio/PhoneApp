@@ -36,3 +36,10 @@ Badge « douleur du jour non notée », édition d'une entrée en place, raideur
 alimentation (computeStiff, J-1/J-2), graphe 14 jours combiné (douleur + ballonnements +
 repas suspects), rapport imprimable pour le rhumatologue. Confirmée en production
 (commit 84a2c8c).
+
+## 2026-07-03 — Plan 07 done: EatWise 3.21.0 (rapport médecin v2, standards cliniques)
+Rapport refondu sur les référentiels réels (journal aliments-symptômes des diététiciens,
+cadrage BASDAI des rhumatologues) : journal 14 jours horodaté avec délais en toutes lettres,
+synthèse en indicateurs 0-10, complétude du journal, courbe 28 jours avec axe Y, bouton
+Imprimer/PDF, viewport mobile. Graphe in-app : axe Y + marqueurs séparés (échelles
+distinctes). Confirmée en production (commit 9f967e3).
