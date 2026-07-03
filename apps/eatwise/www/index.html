@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#2EB39A" />
+<meta name="theme-color" content="#3FBAA0" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="EatWise" />
@@ -12,8 +12,8 @@
 <title>EatWise</title>
 <style>
 :root{
-  --bg:#F6F7F8;--paper:#FFFFFF;--ink:#3B4249;--muted:#8A929A;
-  --brand:#2EB39A;--ochre:#F19A4D;--sport:#8C7AE6;--good:#6BC57E;--alert:#E56A73;--line:#ECEEF0;
+  --bg:#F5F6F7;--paper:#FFFFFF;--ink:#3B4249;--muted:#8A929A;
+  --brand:#3FBAA0;--ochre:#F09A4E;--sport:#8B7BC7;--good:#7FC98B;--alert:#E2707B;--line:#ECEEF0;
   --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
   --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,monospace;
@@ -28,18 +28,19 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 .h1{font-family:var(--serif);font-size:27px;margin:6px 0 4px;font-weight:600;line-height:1.12}
 .sub{margin:0;font-size:13.5px;opacity:.85}
 .tabs{display:flex;gap:6px;margin-top:16px;margin-bottom:16px;flex-wrap:wrap}
-.tab{flex:1;min-width:70px;padding:9px 6px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--sans)}
+.tab{flex:1;min-width:70px;padding:12px 4px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--sans)}
 .tab.on{border-color:var(--brand);background:var(--brand);color:#fff}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(45,55,65,.05)}
-.seg{display:flex;gap:5px;background:#EEF1F2;padding:4px;border-radius:12px;margin-bottom:16px}
-.segbtn{flex:1;padding:9px 2px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:var(--sans)}
-.segbtn.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tile{border:none;border-radius:16px;padding:16px 8px 14px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans);text-align:center}
+.tile:active{transform:scale(.97)}
+.tile .em{display:block;font-size:28px;margin-bottom:6px}
 .row{display:flex;gap:10px;margin-bottom:14px}
 .lab{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;display:block;font-weight:600}
-.field{width:100%;padding:11px 12px;font-size:16px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font-family:var(--sans);outline:none}
+.field{width:100%;padding:13px 12px;font-size:16px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);font-family:var(--sans);outline:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{padding:7px 12px;border-radius:999px;font-size:14px;cursor:pointer;border:1.5px solid var(--line);user-select:none;display:inline-block}
-.btn{width:100%;padding:13px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;font-family:var(--sans)}
+.btn{width:100%;padding:16px;border:none;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;font-family:var(--sans)}
 .btn.dark{background:var(--ink);color:#fff}
 .btn.alert{background:var(--alert);color:#fff}
 .btn.ochre{background:var(--ochre);color:#fff}
@@ -75,7 +76,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.16.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.16.1", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 
 var mem={};
@@ -84,7 +85,7 @@ var store={
   set:function(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem[k]=v; } }
 };
 
-var SEV=[{v:0,label:"Aucune",color:"#6BC57E"},{v:1,label:"Léger",color:"#E7C04B"},{v:2,label:"Moyen",color:"#F19A4D"},{v:3,label:"Fort",color:"#E56A73"}];
+var SEV=[{v:0,label:"Aucune",color:"#7FC98B"},{v:1,label:"Léger",color:"#E7C04B"},{v:2,label:"Moyen",color:"#F09A4E"},{v:3,label:"Fort",color:"#E2707B"}];
 
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function nowHM(){ return new Date().toTimeString().slice(0,5); }
@@ -311,7 +312,8 @@ function tabsHTML(){ var tabs=[["log","Ajouter"],["history","Journal"+(state.ent
 function footerHTML(){ return '<footer class="foot">Données gardées sur ton téléphone. Pense à télécharger une sauvegarde. · Suivi personnel, pas un avis médical — parles-en à ton médecin/rhumatologue. · v'+VERSION+'</footer>'; }
 
 function logHTML(){
-  var seg=[["meal","🍽 Mangé"],["symptom","🎈 Ballonné"],["pain","🔥 Douleur"],["sport","🏃 Sport"]].map(function(k){return '<button class="segbtn '+(state.kind===k[0]?"on":"")+'" data-act="kind" data-val="'+k[0]+'">'+k[1]+'</button>';}).join("");
+  var KINDS=[["meal","🍽","Mangé","#3FBAA0"],["symptom","🎈","Ballonné","#F09A4E"],["pain","🔥","Douleur","#E2707B"],["sport","🏃","Sport","#8B7BC7"]];
+  var tiles='<div class="tiles">'+KINDS.map(function(k){ var on=state.kind===k[0]; return '<button class="tile" data-act="kind" data-val="'+k[0]+'" style="'+(on?"background:"+k[3]+";color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.16)":"background:"+k[3]+"1C;color:"+k[3])+'"><span class="em">'+k[1]+'</span>'+k[2]+'</button>'; }).join("")+'</div>';
   var dt='<div class="row"><div style="flex:1"><label class="lab">Date</label><input type="date" class="field" data-field="date" value="'+state.date+'"></div>'+(state.kind!=="pain"?'<div style="width:120px"><label class="lab">Heure</label><input type="time" class="field" data-field="time" value="'+state.time+'"></div>':'')+'</div>';
   var form="";
   if(state.kind==="meal"){
@@ -334,7 +336,7 @@ function logHTML(){
       +'<div style="margin-bottom:16px"><label class="lab">Note</label><input class="field" data-field="pnote" value="'+esc(state.pnote)+'" placeholder="ex. bas du dos, matin difficile"></div>'
       +'<button class="btn alert" data-act="addPain">Enregistrer la douleur du jour</button>';
   }
-  return '<div class="card"><div class="seg">'+seg+'</div>'+dt+form+'</div>';
+  return tiles+'<div class="card">'+dt+form+'</div>';
 }
 
 function historyHTML(){
@@ -363,7 +365,7 @@ function analyseHTML(){
   var b=computeBloat(state.entries), p=computePain(state.entries);
   var claudeBlock='';
   if(state.analysis && state.analysis.text){ claudeBlock='<div class="card"><span class="cardhd">Analyse de Claude</span><p class="muted" style="font-size:11.5px;margin:2px 0 8px">Établie le '+state.analysis.date+'</p>'+renderAnalysis(state.analysis.text)+'</div>'; }
-  else { claudeBlock='<div class="card muted" style="font-size:12.5px">💡 Pour une analyse détaillée (et des idées recettes) : onglet <b>Données</b> → « Envoyer mes données à Claude ».</div>'; }
+  else { claudeBlock='<div class="card muted" style="font-size:12.5px">💡 Pour une analyse détaillée (et des idées recettes) : onglet <b>Données</b> → « Analyser mes données avec Claude ».</div>'; }
   var h=claudeBlock+'<div class="sectitle">Ballonnements</div>';
   if(b.avgDelay!=null) h+='<div class="card" style="background:var(--brand);color:#FFFFFF;border:none"><div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.85">Délai typique</div><div style="font-family:var(--serif);font-size:26px;font-weight:600">≈ '+b.avgDelay+' min après le déclencheur</div></div>';
   if(b.suspects.length===0) h+='<div class="card center muted">Continue d\'enregistrer tes repas et ton ressenti.</div>';
@@ -387,7 +389,7 @@ function analyseHTML(){
 function dataHTML(){
   var slug=slugify(APP_NAME);
   return '<div class="card"><span class="cardhd">Analyse par Claude</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Claude lit ton carnet et met à jour l\'onglet Analyse. Deux étapes :</p>'
-  +'<div style="margin-bottom:4px"><span class="lab">Étape 1 — envoyer</span><button class="btn brand" data-act="sendClaude">Envoyer mes données à Claude</button><p class="muted" style="font-size:11.5px;margin:6px 0 14px">Tout est copié et Claude s\'ouvre : si le message n\'est pas déjà pré-rempli, fais simplement « Coller ». <span data-act="openExport" style="color:var(--brand);text-decoration:underline;cursor:pointer">Voir ce qui est envoyé</span></p></div>'
+  +'<div style="margin-bottom:4px"><span class="lab">Étape 1 — envoyer</span><button class="btn brand" data-act="sendClaude">Analyser mes données avec Claude</button><p class="muted" style="font-size:11.5px;margin:6px 0 14px">Tout est copié et Claude s\'ouvre : si le message n\'est pas déjà pré-rempli, fais simplement « Coller ». <span data-act="openExport" style="color:var(--brand);text-decoration:underline;cursor:pointer">Voir ce qui est envoyé</span></p></div>'
   +'<div><span class="lab">Étape 2 — rapporter</span><textarea class="field" data-field="imp" placeholder="Colle ici la réponse complète de Claude — l\'app retrouve l\'analyse toute seule." style="min-height:96px;font-size:13px">'+esc(state.imp)+'</textarea><button class="btn outline mt10" data-act="importText">Enregistrer l\'analyse</button></div></div>'
   +'<div class="card"><span class="cardhd">Sauvegarde</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Tes données vivent uniquement sur ce téléphone. Garde une copie de temps en temps.</p><button class="btn outline" data-act="download">Télécharger mes données (.json)</button><label style="display:block;margin-top:12px;font-size:14px;color:var(--brand);font-weight:600">Restaurer depuis une sauvegarde<input type="file" accept="application/json,.json" data-field="file" style="display:block;margin-top:6px;font-size:13px;color:var(--ink)"></label><p class="muted" style="font-size:11.5px;margin:8px 0 0">Fichier : <span class="meta">'+slug+'/data/'+slug+'.json</span> (nom fixe, écrase l\'ancien).</p></div>'
   +'<div class="card muted" style="font-size:12.5px">'+state.entries.length+' entrées enregistrées.'+(state.analysis?' · Analyse de Claude du '+state.analysis.date+'.':' · Pas encore d\'analyse Claude.')+'</div>';
