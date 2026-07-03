@@ -1,0 +1,6 @@
+{
+  "name": "@shared/web",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Shared web assets (CSS/JS) copied into each app's www/shared/ at build time"
+}

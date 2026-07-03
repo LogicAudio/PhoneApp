@@ -1,0 +1,16 @@
+{
+  "name": "phoneapp",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Monorepo for Android apps built with Capacitor — shared tooling in shared/, one folder per app in apps/",
+  "workspaces": [
+    "apps/*",
+    "shared/*"
+  ],
+  "scripts": {
+    "new-app": "bash shared/scripts/new-app.sh",
+    "build": "bash shared/scripts/build.sh",
+    "deploy": "bash shared/scripts/deploy.sh",
+    "dev": "bash shared/scripts/dev.sh"
+  }
+}
