@@ -1,36 +1,22 @@
 # PhoneApp
 
-Monorepo for Android mobile apps built with [Capacitor](https://capacitorjs.com): each app is plain web code (HTML/CSS/JS) wrapped into a native Android app. Structured Android-first but iOS-ready (Capacitor supports adding an `ios/` platform per app later). Apps can also ship as PWAs via GitHub Pages.
+Monorepo for Android mobile apps built with [Capacitor](https://capacitorjs.com): each app is
+plain web code (HTML/CSS/JS) wrapped into a native Android app. Android-first, iOS-ready; apps
+can also ship as PWAs via GitHub Pages. First app: **EatWise**, a personal health-tracking PWA.
 
-**EatWise (PWA) en production : https://logicaudio.github.io/PhoneApp/** — déployée automatiquement par GitHub Actions à chaque push touchant `apps/eatwise/www/`.
+**EatWise (PWA) en production : https://logicaudio.github.io/PhoneApp/** — déployée
+automatiquement par GitHub Actions à chaque push touchant `apps/eatwise/www/`.
 
-## Layout
+> **The canonical map is [CLAUDE.md](CLAUDE.md)** — the single index of what each part does
+> and which rule file to open for detail. This README is just the front door, not a mirror.
 
+## Quick start
+
+```bash
+npm install                 # once; toolchain setup: docs/SETUP.md
+scripts/bootstrap.sh        # once per clone: git hooks + rot-guards
+npm run dev eatwise         # serve the app in the browser
+npm run deploy eatwise      # build APK + install on USB-connected device
 ```
-apps/            One folder per app
-  eatwise/       EatWise — first app
-    www/         The app's web code (HTML/CSS/JS) — this is what you edit
-    android/     Generated native Android project (committed, rarely touched)
-    capacitor.config.json
-shared/
-  scripts/       Shared tooling: scaffold, build, deploy
-  web/           Shared web assets (CSS/JS) copied into every app at build time
-docs/            Setup and workflow documentation
-CLAUDE.md        Instructions and directives for AI agents working in this repo
-```
 
-## Common commands
-
-Run from the repo root:
-
-| Command | What it does |
-|---|---|
-| `npm run new-app <name> "<Display Name>"` | Scaffold a new app under `apps/<name>` |
-| `npm run dev <app>` | Serve an app's `www/` in the browser for quick iteration |
-| `npm run build <app>` | Build a debug APK |
-| `npm run build <app> release` | Build a release APK |
-| `npm run deploy <app>` | Build and install on a USB-connected Android device |
-
-## First-time setup
-
-See [docs/SETUP.md](docs/SETUP.md) for toolchain installation (Java, Android SDK, adb) and how to connect a phone.
+Signing keystores are git-ignored — never commit credentials.
