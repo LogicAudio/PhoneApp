@@ -16,3 +16,10 @@ Palette type Gluci-Chek (une couleur par fonction), onglet Données en 2 étapes
 d'analyse v2 avec miroir réviewable Knowledge/eatwise-prompt.md (golden buildExport recalé sur
 demande de Thomas), idées recettes dans la boucle d'analyse, icônes renommées anti-cache WebAPK
 (icon-2.svg + PNG 192/512). Déployée et confirmée en production (commit 9bf2573).
+
+## 2026-07-03 — Plan 03 done: EatWise 3.16.1 → 3.17.1 (UI mobile + qualité de vie)
+Grille de tuiles colorées façon référence Gluci-Chek et gros boutons (3.16.1) ; carte d'analyse
+déplacée dans l'onglet Analyse avec note multi-IA, historique d'analyses datées (champ additif),
+bouton « Encore ce repas », storage.persist(), service worker network-first = mises à jour
+instantanées (3.17.0) ; prompt recohérencé vers l'onglet Analyse, golden recalé (3.17.1).
+Confirmée en production (commit f7c0d19).

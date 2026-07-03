@@ -1,6 +1,5 @@
 ---
-status: in-progress
-priority: now
+status: done
 ---
 
 # Plan 03 — Retouches UI mobile + qualité de vie
@@ -51,7 +50,7 @@ ses 3 formes). Onglet Analyse : l'analyse courante + dépliant « analyses préc
 Feedback Thomas : l'action d'analyse vit dans l'onglet Analyse (Données ne garde que la
 sauvegarde) ; mention explicite que le rapport se colle dans n'importe quelle IA.
 
-## P03.6 — Gate + déploiement 3.17.0 · SAFE · low · ⏳ gate OK, déploiement en cours
+## P03.6 — Gate + déploiement · SAFE · low · ✅ DONE (3.17.1 confirmée en prod)
 
 verify.sh, tests Node, push, prod confirmée.
 
