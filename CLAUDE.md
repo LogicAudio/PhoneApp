@@ -57,7 +57,7 @@ get confirmation.
 
 | Doc | Open it when… |
 |-----|---------------|
-| [conventions.md](Knowledge/conventions.md) | …naming, app ids, git workflow, stack, origin legend |
+| [conventions.md](Knowledge/conventions.md) | …naming, app ids, git workflow, stack, languages |
 | [runbook.md](Knowledge/runbook.md) | …you need an operational command (build, deploy, gates) |
 | [setup.md](Knowledge/setup.md) | …first-time toolchain setup or connecting a phone |
 | [eatwise.md](Knowledge/eatwise.md) | …touching anything under `apps/eatwise/` — data model, business logic, semver (in French) |
@@ -77,7 +77,7 @@ Doc taxonomy ("where do I put/find X?"): see the coexistence spec
 ## ⚠️ Gotchas — learned the hard way
 
 - After every deploy that changes EatWise code, **bump the cache name in `sw.js`** — otherwise
-  devices keep serving the old version.
+  devices keep serving the old version (rule: [Knowledge/eatwise.md](Knowledge/eatwise.md)).
 - EatWise deliberately does **not** reference `shared/` — everything is inline in its `index.html`.
 
 ## ▶️ Run & test

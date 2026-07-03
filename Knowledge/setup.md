@@ -1,3 +1,11 @@
+---
+name: setup
+type: runbook
+governs:
+  - shared/scripts/env.sh
+read_when: First-time toolchain setup (Java, Android SDK, adb), connecting a phone, or driving this repo from the Claude mobile app.
+---
+
 # Setup
 
 ## Toolchain (macOS)

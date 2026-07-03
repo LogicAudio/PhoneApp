@@ -1,3 +1,11 @@
+---
+name: eatwise
+type: rules
+governs:
+  - apps/eatwise/
+read_when: Avant de toucher quoi que ce soit sous apps/eatwise/ — modèle de données, logique métier, versionnement semver strict.
+---
+
 > **Note monorepo (ajoutée à l'intégration dans PhoneApp)** : ce guide a été écrit pour un repo autonome. Ici, EatWise vit dans `apps/eatwise/` :
 > - « racine du repo » → **`apps/eatwise/www/`** (c'est là que vivent `index.html`, `manifest.webmanifest`, `sw.js`, `icon.svg`) ;
 > - le déploiement GitHub Pages se fait depuis ce dossier (workflow ou config Pages adaptée), pas littéralement depuis la racine du monorepo ;

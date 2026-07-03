@@ -13,7 +13,7 @@ automatiquement par GitHub Actions à chaque push touchant `apps/eatwise/www/`.
 ## Quick start
 
 ```bash
-npm install                 # once; toolchain setup: docs/SETUP.md
+npm install                 # once; toolchain setup: Knowledge/setup.md
 scripts/bootstrap.sh        # once per clone: git hooks + rot-guards
 npm run dev eatwise         # serve the app in the browser
 npm run deploy eatwise      # build APK + install on USB-connected device
