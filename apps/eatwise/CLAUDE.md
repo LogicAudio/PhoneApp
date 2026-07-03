@@ -13,7 +13,7 @@ Application personnelle de suivi santé : **digestion (ballonnements)** + **doul
 - Slogan/identité : « EatWise — Eat wise, feel nice. » Titre : « Écoute ton corps, parle à ton assiette. » Sous-titre : « Observe, comprends, ajuste — et sens-toi mieux. »
 
 ## État actuel
-- **Un seul fichier `index.html`**, version **3.14.0** (voir `VERSION` dans le code, affichée dans le footer). La 3.14.0 = 3.13.0 + câblage PWA (manifest, service worker, icône) — aucun changement de comportement ni de données.
+- **Un seul fichier `index.html`**, version **3.15.0** (voir `VERSION` dans le code, affichée dans le footer). 3.14.0 = 3.13.0 + câblage PWA (manifest, service worker, icône). 3.15.0 = intensité « Aucune » (sev 0) pour les ballonnements.
 - **Vanilla JS pur** : aucun framework, aucune dépendance, aucun build, aucun CDN. Tout est inline (HTML + CSS + JS). C'est un choix assumé : ça tourne hors-ligne et sans outillage.
 - Rendu maison : un objet `state`, une fonction `render()` qui régénère `#app`, délégation d'événements via attributs `data-act` / `data-field`.
 - Stockage : `localStorage` sous la clé `eatwise-v3`, avec **fallback mémoire** (`store.get/set` dans un try/catch) pour ne jamais planter en environnement restreint.
@@ -33,7 +33,7 @@ Objet stocké : `{ "entries": [...], "analysis": { "date": "...", "text": "..." 
 Chaque entrée de `entries` a un `type` :
 - `meal`    : `{id, type, date, time, meal (texte libre), tags (string[] aliments), sport? (booléen hérité)}`
 - `sport`   : `{id, type, date, time, note}` — effort horodaté
-- `symptom` : `{id, type, date, time, sev (1-3), note}` — ballonnements
+- `symptom` : `{id, type, date, time, sev (0-3, 0 = « Aucune » : observation explicite d'absence), note}` — ballonnements
 - `pain`    : `{id, type, date, level (0-10), stiff (bool), note}` — douleur quotidienne (pas d'heure : une par jour)
 
 `analysis.text` est du **markdown léger** : titres préfixés `## `, puces préfixées `- `. Rendu par `renderAnalysis()`.

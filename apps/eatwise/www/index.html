@@ -74,7 +74,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.14.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.15.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 
 var mem={};
@@ -83,7 +83,7 @@ var store={
   set:function(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem[k]=v; } }
 };
 
-var SEV=[{v:1,label:"Léger",color:"#B7A23C"},{v:2,label:"Moyen",color:"#C98A34"},{v:3,label:"Fort",color:"#BE5238"}];
+var SEV=[{v:0,label:"Aucune",color:"#5E8B5A"},{v:1,label:"Léger",color:"#B7A23C"},{v:2,label:"Moyen",color:"#C98A34"},{v:3,label:"Fort",color:"#BE5238"}];
 
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function nowHM(){ return new Date().toTimeString().slice(0,5); }
@@ -139,7 +139,7 @@ function buildExport(){
 +"STRUCTURE — un tableau \"entries\", chaque entrée a un champ \"type\" :\n"
 +"- type \"meal\"    : {date, time, meal (texte libre), tags (aliments détectés automatiquement, un par ingrédient), sport (booléen hérité, ancien flag)}\n"
 +"- type \"sport\"   : {date, time, note}. Effort physique horodaté — peut couper la digestion et déclencher un ballonnement (traité comme un déclencheur, au même titre qu'un repas).\n"
-+"- type \"symptom\" : ballonnements. {date, time, sev : 1=léger 2=moyen 3=fort, note}\n"
++"- type \"symptom\" : ballonnements. {date, time, sev : 0=aucune gêne (observation explicite d'absence de symptôme) 1=léger 2=moyen 3=fort, note}\n"
 +"- type \"pain\"    : douleur quotidienne (spondylarthrite). {date, level : 0 à 10, stiff : raideur matinale true/false, note}\n\n"
 +"CE QUE JE CHERCHE :\n"
 +"1) Ballonnements : déclencheurs suspects (aliments ET sport), délai typique déclencheur -> symptôme, combinaisons à risque.\n"
@@ -307,7 +307,7 @@ function historyHTML(){
       if(e.type==="sport"){
         return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--ochre)"><div class="between"><span class="meta">'+esc(e.time)+' · sport</span><span style="font-size:12.5px;font-weight:600;color:var(--ochre)">🏃 Sport</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
       }
-      if(e.type==="symptom"){ var s=null; for(var i=0;i<SEV.length;i++){ if(SEV[i].v===e.sev) s=SEV[i]; } if(!s) s=SEV[2];
+      if(e.type==="symptom"){ var s=null; for(var i=0;i<SEV.length;i++){ if(SEV[i].v===e.sev) s=SEV[i]; } if(!s) s=SEV[SEV.length-1];
         return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid '+s.color+'"><div class="between"><span class="meta">'+esc(e.time)+' · ballonné</span><span style="font-size:12.5px;font-weight:600;color:'+s.color+'">🎈 '+s.label+'</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
       }
       return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--alert)"><div class="between"><span class="meta">douleur du jour</span><span style="font-size:12.5px;font-weight:600;color:var(--alert)">🔥 '+e.level+'/10'+(e.stiff?' · raideur':'')+'</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
