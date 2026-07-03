@@ -24,4 +24,5 @@ _Auto-generated from each plan's `status:` frontmatter by `scripts/check_plans.p
 | [02_eatwise_3_16_0_ux_analyse.md](02_eatwise_3_16_0_ux_analyse.md) | ✅ done | EatWise 3.16.0 : refonte visuelle + boucle d'analyse sans friction |
 | [03_retouches_ui_qualite_de_vie.md](03_retouches_ui_qualite_de_vie.md) | ✅ done | Retouches UI mobile + qualité de vie |
 | [04_onglet_recettes_et_ordre_analyse.md](04_onglet_recettes_et_ordre_analyse.md) | 🚧 in-progress | Onglet Recettes + réorganisation de l'onglet Analyse |
+| [05_backlog_idees_eatwise.md](05_backlog_idees_eatwise.md) | 📋 proposed | Backlog d'idées EatWise (à prioriser par Thomas) |
 <!-- AUTOGEN:status-board:end -->

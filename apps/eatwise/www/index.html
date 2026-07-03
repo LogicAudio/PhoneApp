@@ -76,8 +76,15 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.18.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.19.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
+var LLM_KEY="eatwise-llm";
+var LLMS={
+  claude:{name:"Claude",url:"https://claude.ai/new",q:true},
+  chatgpt:{name:"ChatGPT",url:"https://chatgpt.com/",q:true},
+  gemini:{name:"Gemini",url:"https://gemini.google.com/app",q:false},
+  copy:{name:"Copier seulement",url:null,q:false}
+};
 
 var mem={};
 var store={
@@ -115,6 +122,7 @@ var state={
   sev:2, note:"",
   pain:0, stiff:false, pnote:"",
   snote:"", recipeNote:"",
+  llm:(function(){ var v=store.get(LLM_KEY); return LLMS[v]?v:"claude"; })(),
   showExport:false, copied:false, imp:""
 };
 
@@ -225,16 +233,21 @@ function importJSON(){
   if(d==null){ alert("Je n'ai pas trouvé d'analyse dans ce texte. Colle la réponse complète de Claude (ou son bloc {\"analysis\": ...})."); return; }
   state.imp=""; applyImport(d);
 }
-function copyAndOpenClaude(txt){
+function copyAndOpenLLM(txt){
   try{
     if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt); }
     else { var ta=document.createElement("textarea"); ta.value=txt; ta.style.position="fixed"; ta.style.top="0"; ta.style.opacity="0"; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); }
   }catch(e){}
-  var url="https://claude.ai/new", q=encodeURIComponent(txt);
-  if(q.length<6000) url+="?q="+q;
+  var l=LLMS[state.llm]||LLMS.claude;
+  if(!l.url){ alert("Ton rapport est copié — colle-le dans l'IA de ton choix."); return; }
+  var url=l.url;
+  if(l.q){ var q=encodeURIComponent(txt); if(q.length<6000) url+=(url.indexOf("?")>=0?"&":"?")+"q="+q; }
   window.open(url,"_blank");
 }
-function sendToClaude(){ copyAndOpenClaude(buildExport()); }
+function llmChipsHTML(){
+  return '<div class="chips" style="margin:0 0 12px">'+["claude","chatgpt","gemini","copy"].map(function(k){ var on=state.llm===k; return '<span class="chip" data-act="llm" data-val="'+k+'" style="font-size:13px;'+chipStyle(on,"var(--brand)")+'">'+LLMS[k].name+'</span>'; }).join("")+'</div>';
+}
+function sendToClaude(){ copyAndOpenLLM(buildExport()); }
 function buildRecipePrompt(kind){
   var labels={dejeuner:"déjeuner (petit-déjeuner) rapide à préparer",diner:"dîner (repas de midi)",souper:"souper (repas du soir)"};
   var b=computeBloat(state.entries), p=computePain(state.entries);
@@ -251,7 +264,7 @@ function buildRecipePrompt(kind){
    +an
    +"Réponds en français, directement avec les 3 idées.";
 }
-function sendRecipe(kind){ copyAndOpenClaude(buildRecipePrompt(kind)); }
+function sendRecipe(kind){ copyAndOpenLLM(buildRecipePrompt(kind)); }
 function downloadBackup(){
   try{
     var slug=slugify(APP_NAME);
@@ -390,9 +403,10 @@ function analyseHTML(){
   var b=computeBloat(state.entries), p=computePain(state.entries);
   var claudeBlock='';
   if(state.analysis && state.analysis.text){ claudeBlock='<div class="card"><span class="cardhd">Analyse IA</span><p class="muted" style="font-size:11.5px;margin:2px 0 8px">Établie le '+state.analysis.date+'</p>'+renderAnalysis(state.analysis.text)+'</div>'; }
-  claudeBlock+='<div class="card"><span class="cardhd">'+(state.analysis?'Mettre à jour l\'analyse':'Lancer une analyse complète')+'</span><p class="muted" style="font-size:13px;margin:4px 0 12px">L\'IA lit ton carnet et rédige une analyse détaillée, avec des idées recettes.</p>'
-    +'<button class="btn brand" data-act="sendClaude">Analyser mes données avec Claude</button>'
-    +'<p class="muted" style="font-size:11.5px;margin:6px 0 14px">Ton rapport est copié et Claude s\'ouvre — si le message n\'est pas pré-rempli, fais « Coller ». Ça marche aussi avec n\'importe quelle IA (ChatGPT, Gemini…) : <span data-act="openExport" style="color:var(--brand);text-decoration:underline;cursor:pointer">affiche le rapport</span> et colle-le où tu veux.</p>'
+  claudeBlock+='<div class="card"><span class="cardhd">'+(state.analysis?'Mettre à jour l\'analyse':'Lancer une analyse complète')+'</span><p class="muted" style="font-size:13px;margin:4px 0 10px">L\'IA lit ton carnet et rédige une analyse détaillée, avec des idées recettes. Choisis ton IA :</p>'
+    +llmChipsHTML()
+    +'<button class="btn brand" data-act="sendClaude">'+(state.llm==="copy"?"Copier mon rapport d\'analyse":"Analyser mes données")+'</button>'
+    +'<p class="muted" style="font-size:11.5px;margin:6px 0 14px">'+(state.llm==="copy"?"Le rapport se copie — colle-le dans l\'IA de ton choix.":"Ton rapport est copié et "+LLMS[state.llm].name+" s\'ouvre — si le message n\'est pas pré-rempli, fais simplement « Coller ».")+' <span data-act="openExport" style="color:var(--brand);text-decoration:underline;cursor:pointer">Voir le rapport</span></p>'
     +'<span class="lab">Puis colle la réponse ici</span><textarea class="field" data-field="imp" placeholder="Colle la réponse complète de l\'IA — l\'app retrouve l\'analyse toute seule." style="min-height:80px;font-size:13px">'+esc(state.imp)+'</textarea><button class="btn outline mt10" data-act="importText">Enregistrer l\'analyse</button></div>';
   if(state.analysisHistory && state.analysisHistory.length){
     var hist=state.analysisHistory.map(function(hh){ return '<details style="margin:6px 0"><summary style="cursor:pointer;font-size:13px;color:var(--muted)">Analyse du '+esc(hh.date)+'</summary><div style="padding:4px 0 2px">'+renderAnalysis(hh.text)+'</div></details>'; }).join("");
@@ -421,7 +435,8 @@ function analyseHTML(){
 function recipesHTML(){
   var kinds=[["dejeuner","🥐","Déjeuner rapide"],["diner","🍽","Dîner"],["souper","🍲","Souper"]];
   var btns=kinds.map(function(k){ return '<button class="btn brand mt10" data-act="recipe" data-val="'+k[0]+'">'+k[1]+' '+k[2]+'</button>'; }).join("");
-  return '<div class="card"><span class="cardhd">Mes recettes du jour</span><p class="muted" style="font-size:13px;margin:4px 0 12px">L\'IA compose 3 idées à partir de tes aliments bien tolérés, de tes suspects'+(state.analysis?' et de ton analyse du '+state.analysis.date:'')+'. Ton prompt est copié et Claude s\'ouvre — il se colle aussi dans n\'importe quelle IA.</p>'
+  return '<div class="card"><span class="cardhd">Mes recettes du jour</span><p class="muted" style="font-size:13px;margin:4px 0 10px">L\'IA compose 3 idées à partir de tes aliments bien tolérés, de tes suspects'+(state.analysis?' et de ton analyse du '+state.analysis.date:'')+'. Choisis ton IA :</p>'
+  +llmChipsHTML()
   +'<label class="lab">Envies / contraintes du jour (optionnel)</label><input class="field" data-field="recipeNote" value="'+esc(state.recipeNote||"")+'" placeholder="ex. reste de poulet, envie de soupe, 15 min max">'
   +btns+'</div>'
   +(state.analysis?'':'<div class="card muted" style="font-size:12.5px">💡 Lance d\'abord une analyse (onglet Analyse) pour des recettes encore mieux ciblées — mais ça marche déjà avec ton journal seul.</div>');
@@ -465,6 +480,7 @@ app.addEventListener("click",function(e){
   else if(act==="again"){ repeatMeal(val); }
   else if(act==="sendClaude"){ sendToClaude(); }
   else if(act==="recipe"){ sendRecipe(val); }
+  else if(act==="llm"){ state.llm=val; store.set(LLM_KEY,val); render(); }
   else if(act==="openExport"){ state.showExport=true; state.copied=false; render(); }
   else if(act==="closeExport"){ state.showExport=false; render(); }
   else if(act==="copy"){ copyExport(); }
