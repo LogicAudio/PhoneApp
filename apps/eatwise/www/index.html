@@ -88,7 +88,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.25.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.25.1", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 var LLM_KEY="eatwise-llm";
 var LLMS={
@@ -537,10 +537,15 @@ function analyseHTML(){
   claudeBlock+='<div class="card"><span class="cardhd">Pour ton médecin 🩺</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Un rapport imprimable (PDF via le menu d\'impression) : synthèse chiffrée, journal aliments-symptômes des 14 derniers jours, corrélations — à montrer en consultation.</p><button class="btn brand" data-act="report">Ouvrir le rapport imprimable</button></div>';
   var h='<div class="sectitle">'+LBL("fast")+'s</div>';
   if(b.avgDelay!=null) h+='<div class="card" style="background:var(--brand);color:#FFFFFF;border:none"><div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.85">Délai typique</div><div style="font-family:var(--serif);font-size:26px;font-weight:600">≈ '+b.avgDelay+' min après le déclencheur</div></div>';
-  if(b.suspects.length===0) h+='<div class="card center muted">Continue d\'enregistrer tes repas et ton ressenti.</div>';
-  b.suspects.forEach(function(s){ var col=s.rate>=.6?"var(--alert)":s.rate>=.3?"var(--ochre)":"var(--good)";
-    h+='<div class="card" style="padding:14px;margin-bottom:10px"><div class="between" style="margin-bottom:8px"><b>'+esc(s.name)+'</b><span class="meta">'+s.bad+'/'+s.total+' · '+Math.round(s.rate*100)+'%'+(s.med!=null?' · ~'+s.med+'min':'')+'</span></div><div class="bar"><div class="barfill" style="width:'+Math.max(4,s.rate*100)+'%;background:'+col+'"></div></div></div>';
-  });
+  var probs=b.suspects.filter(function(x){return x.bad>0;}).sort(function(a,bb){return bb.bad-a.bad||bb.rate-a.rate;}).slice(0,5);
+  if(probs.length===0){ h+='<div class="card center muted">Aucun aliment n\'a encore causé de problème — continue d\'enregistrer tes repas et ton ressenti.</div>'; }
+  else {
+    var maxBad=probs[0].bad;
+    h+='<div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Top '+probs.length+' des déclencheurs : plus la barre est pleine et rouge, plus l\'aliment a été suivi d\'un épisode.</div>'+probs.map(function(x){
+      var col=x.rate>=0.6?"#D6455B":x.rate>=0.35?"var(--alert)":"var(--ochre)";
+      return '<div style="margin-bottom:12px"><div class="between" style="margin-bottom:5px"><b style="font-size:14.5px">'+esc(x.name)+'</b><span class="meta">'+x.bad+' × problème sur '+x.total+(x.med!=null?' · ~'+x.med+' min':'')+'</span></div><div class="bar" style="height:12px"><div class="barfill" style="width:'+Math.max(8,Math.round(100*x.bad/maxBad))+'%;background:'+col+'"></div></div></div>';
+    }).join("")+'</div>';
+  }
   h+='<div class="sectitle" style="margin-top:18px">'+LBL("daily")+' (suivi quotidien)</div>';
   if(p.count===0){ h+='<div class="card center muted">Note ton ressenti chaque jour pour voir la courbe et les liens.</div>'; return h+claudeBlock; }
   var topSus={}; b.suspects.forEach(function(s){ if(s.rate>=0.5&&s.total>=2) topSus[s.name]=1; });
