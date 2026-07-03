@@ -1,6 +1,5 @@
 ---
-status: in-progress
-priority: now
+status: done
 ---
 
 # Plan 02 — EatWise 3.16.0 : refonte visuelle + boucle d'analyse sans friction
@@ -57,7 +56,7 @@ qlmanage) référencés en premier dans le manifest. `apple-touch-icon` → PNG.
 `VERSION` 3.16.0, cache sw `eatwise-v4`, `ASSETS` mis à jour, `Knowledge/eatwise.md`
 (historique versions, description du nouveau flux Données, note icônes).
 
-## P02.7 — Gate + déploiement · SAFE · low · ⏳ gate OK, déploiement en cours
+## P02.7 — Gate + déploiement · SAFE · low · ✅ DONE (verify PASSED, prod confirmée : footer 3.16.0, icônes 200)
 
 `scripts/verify.sh` (recalage golden `buildExport` délibéré), tests de rendu Node, commit,
 push, déploiement Pages confirmé en production (footer 3.16.0).
