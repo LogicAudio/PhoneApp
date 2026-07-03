@@ -69,6 +69,18 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 .modalbox{background:var(--paper);border-radius:16px;max-width:560px;width:100%;max-height:88vh;overflow:auto;padding:18px}
 .foot{max-width:560px;margin:20px auto 0;padding:0 16px;color:var(--muted);font-size:11.5px;line-height:1.5}
 .cardhd{font-family:var(--serif);font-size:17px;font-weight:700;display:block;margin-bottom:2px}
+.report{background:#fff;border-radius:14px;padding:16px;border:1px solid var(--line);color:#222}
+.report h1{font-size:20px;margin:4px 0 8px;font-family:var(--serif)}
+.report h2{font-size:15.5px;margin:20px 0 6px;border-bottom:1px solid #ccc;padding-bottom:3px;font-family:var(--serif)}
+.report h3{font-size:13.5px;margin:12px 0 4px;color:#444}
+.report table{border-collapse:collapse;width:100%;font-size:12.5px;margin-bottom:4px}
+.report td,.report th{border:1px solid #ddd;padding:5px 7px;text-align:left;vertical-align:top}
+.report th{background:#f4f4f4;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.report p{font-size:13px}
+.report .muted{color:#666;font-size:12px}
+.report .kpi{display:inline-block;border:1px solid #ddd;border-radius:8px;padding:7px 10px;margin:4px 6px 4px 0;font-size:13px}
+.report .kpi b{font-size:16px}
+@media print{.noprint{display:none!important}body{background:#fff;padding-bottom:0}.report{border:none;padding:0;border-radius:0}}
 </style>
 </head>
 <body>
@@ -76,7 +88,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.24.2", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.25.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 var LLM_KEY="eatwise-llm";
 var LLMS={
@@ -127,7 +139,7 @@ var state={
   pain:0, stiff:false, pnote:"",
   snote:"", recipeNote:"", editId:null,
   llm:(function(){ var v=store.get(LLM_KEY); return LLMS[v]?v:"claude"; })(),
-  showExport:false, copied:false, imp:""
+  showExport:false, showReport:false, copied:false, imp:""
 };
 
 function saveAll(){ try{ store.set(LS_KEY,JSON.stringify({entries:state.entries, analysis:state.analysis, analysisHistory:state.analysisHistory||[], labels:state.labels||{}})); }catch(e){} }
@@ -293,7 +305,7 @@ function buildRecipePrompt(kind){
 function sendRecipe(kind){ copyAndOpenLLM(buildRecipePrompt(kind)); }
 function fmtDelay(min){ if(min==null) return ""; var h=Math.floor(min/60), m=Math.round(min%60); if(h<=0) return m+" minutes"; return h+" heure"+(h>1?"s":"")+(m?" "+(m<10?"0":"")+m:""); }
 function sevLabel(v){ for(var i=0;i<SEV.length;i++){ if(SEV[i].v===v) return SEV[i].label; } return "Moyen"; }
-function buildReportHTML(){
+function buildReportBody(){
   var b=computeBloat(state.entries), p=computePain(state.entries), st=computeStiff(state.entries);
   var es=state.entries;
   var dates=es.map(function(e){return e.date;}).sort();
@@ -330,10 +342,9 @@ function buildReportHTML(){
   var susRows=rows(b.suspects,function(x){ return "<tr><td>"+esc(x.name)+"</td><td>"+x.bad+" fois sur "+x.total+" ("+Math.round(x.rate*100)+" %)</td><td>"+(x.med!=null?("environ "+fmtDelay(x.med)):"—")+"</td></tr>"; });
   var painRows=rows(p.foods,function(f){ return "<tr><td>"+esc(f.name)+"</td><td>"+f.avgWith+" sur 10 contre "+f.avgWithout+" sur 10</td><td>"+(f.delta>0?"+":"")+f.delta+" point"+(Math.abs(f.delta)>1?"s":"")+" ("+f.n+" jours)</td></tr>"; });
   var stiffRows=rows(st.foods,function(f){ return "<tr><td>"+esc(f.name)+"</td><td>"+f.rateWith+" % contre "+f.rateWithout+" %</td><td>"+(f.delta>0?"+":"")+f.delta+" points ("+f.n+" jours)</td></tr>"; });
-  return "<!doctype html><html lang=\"fr\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>EatWise — rapport de suivi</title><style>body{font-family:Georgia,serif;color:#222;max-width:720px;margin:16px auto;padding:0 14px;line-height:1.5;font-size:15px}h1{font-size:23px;margin:8px 0}h2{font-size:17px;margin:24px 0 8px;border-bottom:1px solid #bbb;padding-bottom:3px}h3{font-size:14px;margin:14px 0 4px;color:#444}table{border-collapse:collapse;width:100%;font-size:13.5px;margin-bottom:4px}td,th{border:1px solid #ddd;padding:5px 8px;text-align:left;vertical-align:top}th{background:#f4f4f4;-webkit-print-color-adjust:exact;print-color-adjust:exact}p{font-size:14px}.muted{color:#666;font-size:12.5px}.kpi{display:inline-block;border:1px solid #ddd;border-radius:8px;padding:8px 12px;margin:4px 6px 4px 0;font-size:13.5px}.kpi b{font-size:17px}.noprint button{font-size:16px;padding:12px 18px;border-radius:10px;border:1px solid #3FBAA0;background:#3FBAA0;color:#fff;cursor:pointer}@media print{.noprint{display:none}body{margin:0;font-size:12.5px}}</style></head><body>"
-   +"<div class=\"noprint\" style=\"margin:6px 0 14px\"><button onclick=\"window.print()\">🖨 Imprimer / Enregistrer en PDF</button></div>"
+  return '<div class="report">'
    +"<h1>EatWise — rapport de suivi alimentation & symptômes</h1>"
-   +"<p class=\"muted\">Généré le "+fmtDate(todayISO())+" · Période couverte : "+fmtDate(first)+" — "+fmtDate(last)+" · Journal rempli "+loggedDays+" jour"+(loggedDays>1?"s":"")+" sur "+totalDays+" · "+counts.meal+" repas, "+counts.symptom+" observations digestives, "+counts.pain+" évaluations de douleur, "+counts.sport+" activités physiques. Auto-observation quotidienne, saisie au fil de l\'eau.</p>"
+   +"<p class=\"muted\">Généré le "+fmtDate(todayISO())+" · Période couverte : "+fmtDate(first)+" — "+fmtDate(last)+" · Journal rempli "+loggedDays+" jour"+(loggedDays>1?"s":"")+" sur "+totalDays+" · "+counts.meal+" repas, "+counts.symptom+" observations, "+counts.pain+" évaluations quotidiennes, "+counts.sport+" activités physiques. Auto-observation quotidienne, saisie au fil de l\'eau.</p>"
    +"<h2>Synthèse</h2>"
    +"<div><span class=\"kpi\">"+LBL("daily")+" moyenne <b>"+(p.overall!=null?p.overall:"—")+"</b> / 10</span><span class=\"kpi\">"+LBL("daily")+" maximale <b>"+pmax+"</b> / 10</span><span class=\"kpi\">Jours à "+lc(LBL("daily"))+" ≥ 4 : <b>"+pge4+"</b> / "+p.count+"</span><span class=\"kpi\">"+LBL("flag")+" <b>"+st.stiffDays+"</b> matins / "+st.count+"</span><span class=\"kpi\">"+LBL("fast")+"s modérés à forts : <b>"+((symCounts[2]||0)+(symCounts[3]||0))+"</b></span>"+(b.avgDelay!=null?"<span class=\"kpi\">Délai déclencheur → "+lc(LBL("fast"))+" : <b>"+fmtDelay(b.avgDelay)+"</b> (médiane)</span>":"")+"</div>"
    +"<p class=\"muted\">Échelle : évaluation numérique quotidienne de 0 (aucun symptôme) à 10 (très fort). La durée de « "+lc(LBL("flag"))+" » n\'est pas suivie (seulement sa présence)"+(LBL("flag")===DEFAULT_LABELS.flag?" — à préciser oralement si utile : une raideur de plus de 30 minutes oriente vers une douleur inflammatoire":"")+".</p>"
@@ -341,20 +352,16 @@ function buildReportHTML(){
    +"<div style=\"display:flex;gap:2px;margin-left:24px;height:10px\">"+curveMk+"</div>"
    +"<div style=\"display:flex;gap:6px\"><div style=\"width:18px;display:flex;flex-direction:column;justify-content:space-between;height:90px;font-size:9px;color:#888;text-align:right;line-height:1\"><span>10</span><span>5</span><span>0</span></div><div style=\"flex:1;position:relative\"><div style=\"position:absolute;left:0;right:0;top:0;border-top:1px dashed #ddd\"></div><div style=\"position:absolute;left:0;right:0;top:45px;border-top:1px dashed #ddd\"></div><div style=\"position:absolute;left:0;right:0;bottom:0;border-top:1px solid #bbb\"></div><div style=\"display:flex;align-items:flex-end;gap:2px;height:90px\">"+curveBars+"</div></div></div>"
    +"<div style=\"display:flex;gap:2px;margin-left:24px\">"+curveDates+"</div>"
-   +"<p class=\"muted\">Hauteur des barres : niveau quotidien, de 0 à 10 (trait gris = jour non renseigné). Rangée au-dessus du graphique : ● = au moins un épisode « "+lc(LBL("fast"))+" » modéré ou fort ce jour-là — présence/absence, échelle distincte de celle de la douleur.</p>"
+   +"<p class=\"muted\">Hauteur des barres : niveau quotidien, de 0 à 10 (trait gris = jour non renseigné). Rangée au-dessus du graphique : ● = au moins un épisode « "+lc(LBL("fast"))+" » modéré ou fort ce jour-là — présence/absence, échelle distincte de celle du niveau.</p>"
    +"<h2>Journal aliments & symptômes — 14 derniers jours</h2>"+(journal||"<p class=\"muted\">Aucune entrée sur les 14 derniers jours.</p>")
    +(susRows?"<h2>Déclencheurs suspects — "+lc(LBL("fast"))+"s (fenêtre de 4 heures)</h2><table><tr><th>Déclencheur</th><th>Suivi d\'un épisode</th><th>Délai médian</th></tr>"+susRows+"</table>":"")
    +(painRows?"<h2>"+LBL("daily")+" selon l\'alimentation de la veille ou de l\'avant-veille</h2><table><tr><th>Aliment</th><th>Niveau moyen avec / sans</th><th>Écart</th></tr>"+painRows+"</table>":"")
-   +(stiffRows?"<h2>"+LBL("flag")+" selon l\'alimentation de la veille ou de l\'avant-veille</h2><table><tr><th>Aliment</th><th>Matins raides avec / sans</th><th>Écart</th></tr>"+stiffRows+"</table>":"")
+   +(stiffRows?"<h2>"+LBL("flag")+" selon l\'alimentation de la veille ou de l\'avant-veille</h2><table><tr><th>Aliment</th><th>Matins avec / sans</th><th>Écart</th></tr>"+stiffRows+"</table>":"")
    +((state.analysis&&state.analysis.text)?("<h2>Dernière analyse assistée par intelligence artificielle ("+esc(state.analysis.date)+")</h2>"+renderAnalysis(state.analysis.text)):"")
-   +"<h2>Méthode et limites</h2><p class=\"muted\">Un déclencheur (repas ou activité physique) est considéré « suivi d\'un ballonnement » lorsqu\'un épisode d\'intensité au moins modérée survient dans les 4 heures. Les corrélations avec le suivi quotidien et la case du matin portent sur l\'alimentation de la veille et de l\'avant-veille, jamais du jour même. Aucun écart n\'est affiché sous 3 jours d\'observation par aliment. Données d\'auto-observation : corrélations indicatives sur de petits effectifs — ni avis médical, ni diagnostic.</p>"
-   +"</body></html>";
+   +"<h2>Méthode et limites</h2><p class=\"muted\">Un déclencheur (repas ou activité physique) est considéré « suivi d\'un épisode » lorsqu\'un épisode d\'intensité au moins modérée survient dans les 4 heures. Les corrélations avec le suivi quotidien et la case du matin portent sur l\'alimentation de la veille et de l\'avant-veille, jamais du jour même. Aucun écart n\'est affiché sous 3 jours d\'observation par aliment. Données d\'auto-observation : corrélations indicatives sur de petits effectifs — ni avis médical, ni diagnostic.</p>"
+   +'</div>';
 }
-function openReport(){
-  var w=window.open("","_blank");
-  if(!w){ alert("Autorise les pop-ups pour afficher le rapport."); return; }
-  w.document.write(buildReportHTML()); w.document.close();
-}
+function openReport(){ state.showReport=true; render(); try{ window.scrollTo(0,0); }catch(e){} }
 function downloadBackup(){
   try{
     var slug=slugify(APP_NAME);
@@ -459,7 +466,7 @@ function renderAnalysis(txt){
   return html;
 }
 
-function headerHTML(){ return '<header class="hdr"><div class="wrap" style="position:relative"><button data-act="tab" data-val="data" aria-label="Réglages et données" style="position:absolute;bottom:0;right:16px;background:rgba(255,255,255,.16);border:none;color:#fff;font-size:18px;line-height:1;border-radius:10px;padding:8px 12px;cursor:pointer">☰</button><div class="eyebrow">'+esc(APP_NAME)+'</div><div class="tagline">Eat wise, feel nice.</div><h1 class="h1">Écoute ton corps, parle à ton assiette.</h1><p class="sub">Observe, comprends, ajuste — et sens-toi mieux.</p></div></header>'; }
+function headerHTML(){ return '<header class="hdr"><div class="wrap" style="position:relative"><button data-act="tab" data-val="data" aria-label="Réglages et données" style="position:absolute;bottom:0;right:16px;background:rgba(255,255,255,.16);border:none;color:#fff;font-size:18px;line-height:1;border-radius:10px;padding:8px 12px;cursor:pointer">☰</button><div class="eyebrow">'+esc(APP_NAME)+'</div><div class="tagline">Eat wise, feel nice.</div><h1 class="h1">Écoute ton corps, parle à ton assiette.</h1><p class="sub">Observe, comprends, ajuste — et retrouve le sourire.</p></div></header>'; }
 function tabsHTML(){ var dot=painLoggedToday()?"":' <span style="color:var(--alert)">●</span>'; var tabs=[["log","Ajouter"+dot],["history","Journal"+(state.entries.length?" · "+state.entries.length:"")],["analyse","Analyse"],["recipes","Recettes"]]; return '<div class="wrap tabs">'+tabs.map(function(t){return '<button class="tab '+(state.tab===t[0]?"on":"")+'" data-act="tab" data-val="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>'; }
 function footerHTML(){ return '<footer class="foot">Données gardées sur ton téléphone. Pense à télécharger une sauvegarde. · Suivi personnel, pas un avis médical — parles-en à ton médecin. · <a href="https://buymeacoffee.com/logicaudio" target="_blank" rel="noopener" style="color:var(--brand);text-decoration:none">☕ Offre-moi un café</a> · v'+VERSION+'</footer>'; }
 
@@ -599,6 +606,10 @@ function bodyHTML(){
   return dataHTML();
 }
 function render(){
+  if(state.showReport){
+    document.getElementById("app").innerHTML='<div class="wrap" style="padding-top:14px"><div class="noprint" style="display:flex;gap:10px;margin-bottom:12px"><button class="btn outline" style="flex:1" data-act="closeReport">← Retour</button><button class="btn brand" style="flex:1" data-act="printReport">🖨 Imprimer / PDF</button></div>'+buildReportBody()+'</div>';
+    return;
+  }
   document.getElementById("app").innerHTML=headerHTML()+tabsHTML()+'<main class="wrap">'+bodyHTML()+'</main>'+footerHTML()+(state.showExport?exportModalHTML():"");
 }
 
@@ -621,6 +632,8 @@ app.addEventListener("click",function(e){
   else if(act==="edit"){ startEdit(val); }
   else if(act==="cancelEdit"){ cancelEdit(); }
   else if(act==="report"){ openReport(); }
+  else if(act==="closeReport"){ state.showReport=false; render(); }
+  else if(act==="printReport"){ try{ window.print(); }catch(e){} }
   else if(act==="sendClaude"){ sendToClaude(); }
   else if(act==="recipe"){ sendRecipe(val); }
   else if(act==="llm"){ state.llm=val; store.set(LLM_KEY,val); render(); }
