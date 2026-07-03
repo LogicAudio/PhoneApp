@@ -13,7 +13,7 @@ Application personnelle de suivi santé : **digestion (ballonnements)** + **doul
 - Slogan/identité : « EatWise — Eat wise, feel nice. » Titre : « Écoute ton corps, parle à ton assiette. » Sous-titre : « Observe, comprends, ajuste — et sens-toi mieux. »
 
 ## État actuel
-- **Un seul fichier `index.html`**, version **3.15.0** (voir `VERSION` dans le code, affichée dans le footer). 3.14.0 = 3.13.0 + câblage PWA (manifest, service worker, icône). 3.15.0 = intensité « Aucune » (sev 0) pour les ballonnements.
+- **Un seul fichier `index.html`**, version **3.15.1** (voir `VERSION` dans le code, affichée dans le footer). 3.14.0 = 3.13.0 + câblage PWA (manifest, service worker, icône). 3.15.0 = intensité « Aucune » (sev 0) pour les ballonnements. 3.15.1 = palette rafraîchie (émeraude/menthe/corail) + icône cœur-dans-l'assiette — les fichiers déployés dans `www/` font foi sur l'annexe ci-dessous pour les couleurs.
 - **Vanilla JS pur** : aucun framework, aucune dépendance, aucun build, aucun CDN. Tout est inline (HTML + CSS + JS). C'est un choix assumé : ça tourne hors-ligne et sans outillage.
 - Rendu maison : un objet `state`, une fonction `render()` qui régénère `#app`, délégation d'événements via attributs `data-act` / `data-field`.
 - Stockage : `localStorage` sous la clé `eatwise-v3`, avec **fallback mémoire** (`store.get/set` dans un try/catch) pour ne jamais planter en environnement restreint.

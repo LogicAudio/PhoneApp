@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#1F5C54" />
+<meta name="theme-color" content="#0B8457" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="EatWise" />
@@ -12,8 +12,8 @@
 <title>EatWise</title>
 <style>
 :root{
-  --bg:#F1ECE0;--paper:#FBF8F1;--ink:#23302E;--muted:#6E6A5F;
-  --brand:#1F5C54;--ochre:#C98A34;--good:#5E8B5A;--alert:#BE5238;--line:#E2DBCB;
+  --bg:#F0F9F2;--paper:#FFFFFF;--ink:#1F3D33;--muted:#5C7A69;
+  --brand:#0B8457;--ochre:#E88C1E;--good:#2FB56B;--alert:#E8503C;--line:#D9EBDE;
   --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
   --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,monospace;
@@ -22,7 +22,7 @@
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-bottom:40px}
 .wrap{max-width:560px;margin:0 auto;padding:0 16px}
-.hdr{background:var(--brand);color:#F1ECE0;padding:26px 0 20px}
+.hdr{background:var(--brand);color:#FFFFFF;padding:26px 0 20px}
 .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.8}
 .tagline{font-family:var(--serif);font-style:italic;font-size:15px;opacity:.85;margin-top:3px}
 .h1{font-family:var(--serif);font-size:27px;margin:6px 0 4px;font-weight:600;line-height:1.12}
@@ -31,7 +31,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 .tab{flex:1;min-width:70px;padding:9px 6px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--sans)}
 .tab.on{border-color:var(--brand);background:var(--brand);color:#fff}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
-.seg{display:flex;gap:5px;background:#EDE6D6;padding:4px;border-radius:12px;margin-bottom:16px}
+.seg{display:flex;gap:5px;background:#E4F2E8;padding:4px;border-radius:12px;margin-bottom:16px}
 .segbtn{flex:1;padding:9px 2px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:var(--sans)}
 .segbtn.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .row{display:flex;gap:10px;margin-bottom:14px}
@@ -47,13 +47,13 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 .btn.outline{background:transparent;border:1px solid var(--brand);color:var(--brand);font-size:15px;padding:12px}
 .mt10{margin-top:10px}
 .meta{font-family:var(--mono);font-size:13px;color:var(--muted)}
-.tagpill{font-size:12px;padding:3px 8px;border-radius:999px;background:#EFE9DA;color:var(--muted)}
-.tagpill.sport{background:#F3E6D2;color:var(--ochre)}
+.tagpill{font-size:12px;padding:3px 8px;border-radius:999px;background:#EAF5EE;color:var(--muted)}
+.tagpill.sport{background:#FDEBD2;color:var(--ochre)}
 .delbtn{margin-top:8px;background:none;border:none;color:var(--alert);font-size:12.5px;cursor:pointer;padding:0;font-family:var(--sans)}
 .sectitle{font-family:var(--serif);font-size:15px;color:var(--brand);font-weight:600;margin:4px 4px 8px}
 .daytitle{font-family:var(--serif);font-size:15px;color:var(--brand);font-weight:600;margin:0 4px 8px;text-transform:capitalize}
 .between{display:flex;justify-content:space-between}
-.bar{height:10px;background:#EDE6D6;border-radius:999px;overflow:hidden}
+.bar{height:10px;background:#E4F2E8;border-radius:999px;overflow:hidden}
 .barfill{height:100%;border-radius:999px}
 .daybars{display:flex;align-items:flex-end;gap:4px;height:90px;margin-top:6px}
 .daycol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px}
@@ -74,7 +74,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.15.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.15.1", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 
 var mem={};
@@ -83,7 +83,7 @@ var store={
   set:function(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem[k]=v; } }
 };
 
-var SEV=[{v:0,label:"Aucune",color:"#5E8B5A"},{v:1,label:"Léger",color:"#B7A23C"},{v:2,label:"Moyen",color:"#C98A34"},{v:3,label:"Fort",color:"#BE5238"}];
+var SEV=[{v:0,label:"Aucune",color:"#2FB56B"},{v:1,label:"Léger",color:"#E3B926"},{v:2,label:"Moyen",color:"#F59322"},{v:3,label:"Fort",color:"#E8503C"}];
 
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function nowHM(){ return new Date().toTimeString().slice(0,5); }
@@ -321,14 +321,14 @@ function analyseHTML(){
   var claudeBlock='';
   if(state.analysis && state.analysis.text){ claudeBlock='<div class="card"><span class="cardhd">Analyse de Claude</span><p class="muted" style="font-size:11.5px;margin:2px 0 8px">Établie le '+state.analysis.date+'</p>'+renderAnalysis(state.analysis.text)+'</div>'; }
   var h=claudeBlock+'<div class="sectitle">Ballonnements</div>';
-  if(b.avgDelay!=null) h+='<div class="card" style="background:var(--brand);color:#F1ECE0;border:none"><div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.85">Délai typique</div><div style="font-family:var(--serif);font-size:26px;font-weight:600">≈ '+b.avgDelay+' min après le déclencheur</div></div>';
+  if(b.avgDelay!=null) h+='<div class="card" style="background:var(--brand);color:#FFFFFF;border:none"><div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.85">Délai typique</div><div style="font-family:var(--serif);font-size:26px;font-weight:600">≈ '+b.avgDelay+' min après le déclencheur</div></div>';
   if(b.suspects.length===0) h+='<div class="card center muted">Continue d\'enregistrer tes repas et ton ressenti.</div>';
   b.suspects.forEach(function(s){ var col=s.rate>=.6?"var(--alert)":s.rate>=.3?"var(--ochre)":"var(--good)";
     h+='<div class="card" style="padding:14px;margin-bottom:10px"><div class="between" style="margin-bottom:8px"><b>'+esc(s.name)+'</b><span class="meta">'+s.bad+'/'+s.total+' · '+Math.round(s.rate*100)+'%'+(s.med!=null?' · ~'+s.med+'min':'')+'</span></div><div class="bar"><div class="barfill" style="width:'+Math.max(4,s.rate*100)+'%;background:'+col+'"></div></div></div>';
   });
   h+='<div class="sectitle" style="margin-top:18px">Douleurs (spondylarthrite)</div>';
   if(p.count===0){ h+='<div class="card center muted">Note ton ressenti chaque jour pour voir la courbe et les liens.</div>'; return h; }
-  var bars=p.days.map(function(d){ var hh=d.level==null?0:Math.max(3,(d.level/10)*80); return '<div class="daycol"><div class="dayfill" style="height:'+hh+'px;background:'+(d.level==null?"#E2DBCB":"var(--alert)")+'"></div><span class="dayx">'+d.iso.slice(8,10)+'</span></div>'; }).join("");
+  var bars=p.days.map(function(d){ var hh=d.level==null?0:Math.max(3,(d.level/10)*80); return '<div class="daycol"><div class="dayfill" style="height:'+hh+'px;background:'+(d.level==null?"#DDEDE2":"var(--alert)")+'"></div><span class="dayx">'+d.iso.slice(8,10)+'</span></div>'; }).join("");
   h+='<div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:2px">14 derniers jours · moyenne '+(p.overall!=null?p.overall:"—")+'/10</div><div class="daybars">'+bars+'</div></div>';
   if(p.foods.length>0){
     var rows=p.foods.map(function(f){ var col=f.delta>=1?"var(--alert)":f.delta<=-1?"var(--good)":"var(--muted)"; var sign=f.delta>0?"+":""; return '<div class="foodrow"><span>'+esc(f.name)+' <span class="muted" style="font-size:12px">('+f.n+'j)</span></span><span class="meta"><b style="color:'+col+'">'+sign+f.delta+'</b> <span class="muted">('+f.avgWith+' vs '+f.avgWithout+')</span></span></div>'; }).join("");
