@@ -76,7 +76,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.23.2", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.24.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 var LLM_KEY="eatwise-llm";
 var LLMS={
@@ -459,8 +459,8 @@ function renderAnalysis(txt){
   return html;
 }
 
-function headerHTML(){ return '<header class="hdr"><div class="wrap"><div class="eyebrow">'+esc(APP_NAME)+'</div><div class="tagline">Eat wise, feel nice.</div><h1 class="h1">Écoute ton corps, parle à ton assiette.</h1><p class="sub">Observe, comprends, ajuste — et sens-toi mieux.</p></div></header>'; }
-function tabsHTML(){ var dot=painLoggedToday()?"":' <span style="color:var(--alert)">●</span>'; var tabs=[["log","Ajouter"+dot],["history","Journal"+(state.entries.length?" · "+state.entries.length:"")],["analyse","Analyse"],["recipes","Recettes"],["data","Données"]]; return '<div class="wrap tabs">'+tabs.map(function(t){return '<button class="tab '+(state.tab===t[0]?"on":"")+'" data-act="tab" data-val="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>'; }
+function headerHTML(){ return '<header class="hdr"><div class="wrap" style="position:relative"><button data-act="tab" data-val="data" aria-label="Réglages et données" style="position:absolute;top:0;right:16px;background:rgba(255,255,255,.16);border:none;color:#fff;font-size:19px;line-height:1;border-radius:10px;padding:9px 13px;cursor:pointer">☰</button><div class="eyebrow">'+esc(APP_NAME)+'</div><div class="tagline">Eat wise, feel nice.</div><h1 class="h1">Écoute ton corps, parle à ton assiette.</h1><p class="sub">Observe, comprends, ajuste — et sens-toi mieux.</p></div></header>'; }
+function tabsHTML(){ var dot=painLoggedToday()?"":' <span style="color:var(--alert)">●</span>'; var tabs=[["log","Ajouter"+dot],["history","Journal"+(state.entries.length?" · "+state.entries.length:"")],["analyse","Analyse"],["recipes","Recettes"]]; return '<div class="wrap tabs">'+tabs.map(function(t){return '<button class="tab '+(state.tab===t[0]?"on":"")+'" data-act="tab" data-val="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>'; }
 function footerHTML(){ return '<footer class="foot">Données gardées sur ton téléphone. Pense à télécharger une sauvegarde. · Suivi personnel, pas un avis médical — parles-en à ton médecin. · <a href="https://buymeacoffee.com/logicaudio" target="_blank" rel="noopener" style="color:var(--brand);text-decoration:none">☕ Offre-moi un café</a> · v'+VERSION+'</footer>'; }
 
 function logHTML(){
@@ -575,7 +575,8 @@ function recipesHTML(){
 }
 function dataHTML(){
   var slug=slugify(APP_NAME);
-  return '<div class="card"><span class="cardhd">Sauvegarde</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Tes données vivent uniquement sur ce téléphone. Garde une copie de temps en temps.</p><button class="btn outline" data-act="download">Télécharger mes données (.json)</button><label style="display:block;margin-top:12px;font-size:14px;color:var(--brand);font-weight:600">Restaurer depuis une sauvegarde<input type="file" accept="application/json,.json" data-field="file" style="display:block;margin-top:6px;font-size:13px;color:var(--ink)"></label><p class="muted" style="font-size:11.5px;margin:8px 0 0">Fichier : <span class="meta">'+slug+'/data/'+slug+'.json</span> (nom fixe, écrase l\'ancien).</p></div>'
+  return '<div class="sectitle">☰ Réglages & données</div>'
+  +'<div class="card"><span class="cardhd">Sauvegarde</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Tes données vivent uniquement sur ce téléphone. Garde une copie de temps en temps.</p><button class="btn outline" data-act="download">Télécharger mes données (.json)</button><label style="display:block;margin-top:12px;font-size:14px;color:var(--brand);font-weight:600">Restaurer depuis une sauvegarde<input type="file" accept="application/json,.json" data-field="file" style="display:block;margin-top:6px;font-size:13px;color:var(--ink)"></label><p class="muted" style="font-size:11.5px;margin:8px 0 0">Fichier : <span class="meta">'+slug+'/data/'+slug+'.json</span> (nom fixe, écrase l\'ancien).</p></div>'
   +'<div class="card"><span class="cardhd">Personnalisation des suivis</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Adapte les noms à ta situation (rougeurs, eczéma, migraines…). La mécanique ne change pas : un symptôme rapide horodaté avec intensité, un suivi quotidien sur 10 avec une case du matin. Vide un champ pour revenir au défaut.</p>'
   +'<label class="lab">Symptôme rapide (défaut : Ballonnement)</label><input class="field" data-field="lblFast" value="'+esc((state.labels||{}).fast||"")+'" placeholder="Ballonnement" style="margin-bottom:10px">'
   +'<label class="lab">Suivi quotidien 0-10 (défaut : Douleur)</label><input class="field" data-field="lblDaily" value="'+esc((state.labels||{}).daily||"")+'" placeholder="Douleur" style="margin-bottom:10px">'
