@@ -57,7 +57,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 .between{display:flex;justify-content:space-between}
 .bar{height:10px;background:#EEF1F2;border-radius:999px;overflow:hidden}
 .barfill{height:100%;border-radius:999px}
-.daybars{display:flex;align-items:flex-end;gap:4px;height:90px;margin-top:6px}
+.daybars{display:flex;align-items:flex-end;gap:4px;height:102px;margin-top:6px}
 .daycol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px}
 .dayfill{width:100%;border-radius:3px 3px 0 0}
 .dayx{font-size:9px;color:var(--muted)}
@@ -76,7 +76,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.19.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.20.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 var LLM_KEY="eatwise-llm";
 var LLMS={
@@ -121,7 +121,7 @@ var state={
   meal:"",
   sev:2, note:"",
   pain:0, stiff:false, pnote:"",
-  snote:"", recipeNote:"",
+  snote:"", recipeNote:"", editId:null,
   llm:(function(){ var v=store.get(LLM_KEY); return LLMS[v]?v:"claude"; })(),
   showExport:false, copied:false, imp:""
 };
@@ -129,15 +129,25 @@ var state={
 function saveAll(){ try{ store.set(LS_KEY,JSON.stringify({entries:state.entries, analysis:state.analysis, analysisHistory:state.analysisHistory||[]})); }catch(e){} }
 function persist(next){ state.entries=next; saveAll(); }
 
+function saveEntry(entry){
+  if(state.editId){ var eid=state.editId; persist(state.entries.map(function(e){ return e.id===eid?entry:e; })); state.editId=null; }
+  else persist([entry].concat(state.entries));
+}
 function addMeal(){
   var tags=tagsFromMeal(state.meal);
   if(!state.meal.trim() && tags.length===0) return;
-  persist([{id:uid(),type:"meal",date:state.date,time:state.time,meal:state.meal.trim(),tags:tags}].concat(state.entries));
+  saveEntry({id:state.editId||uid(),type:"meal",date:state.date,time:state.time,meal:state.meal.trim(),tags:tags});
   state.meal="";state.time=nowHM();state.tab="history"; render();
 }
-function addSymptom(){ persist([{id:uid(),type:"symptom",date:state.date,time:state.time,sev:state.sev,note:state.note.trim()}].concat(state.entries)); state.note="";state.time=nowHM();state.tab="history"; render(); }
-function addSport(){ persist([{id:uid(),type:"sport",date:state.date,time:state.time,note:state.snote.trim()}].concat(state.entries)); state.snote="";state.time=nowHM();state.tab="history"; render(); }
-function addPain(){ var cleaned=state.entries.filter(function(e){return !(e.type==="pain"&&e.date===state.date);}); persist([{id:uid(),type:"pain",date:state.date,level:state.pain,stiff:state.stiff,note:state.pnote.trim()}].concat(cleaned)); state.pnote="";state.tab="history"; render(); }
+function addSymptom(){ saveEntry({id:state.editId||uid(),type:"symptom",date:state.date,time:state.time,sev:state.sev,note:state.note.trim()}); state.note="";state.time=nowHM();state.tab="history"; render(); }
+function addSport(){ saveEntry({id:state.editId||uid(),type:"sport",date:state.date,time:state.time,note:state.snote.trim()}); state.snote="";state.time=nowHM();state.tab="history"; render(); }
+function addPain(){
+  var entry={id:state.editId||uid(),type:"pain",date:state.date,level:state.pain,stiff:state.stiff,note:state.pnote.trim()};
+  var eid=state.editId;
+  var rest=state.entries.filter(function(e){ return e.id!==eid && !(e.type==="pain"&&e.date===state.date); });
+  persist([entry].concat(rest));
+  state.editId=null; state.pnote="";state.tab="history"; render();
+}
 function removeEntry(id){ persist(state.entries.filter(function(e){return e.id!==id;})); render(); }
 function repeatMeal(id){
   var src=null; for(var i=0;i<state.entries.length;i++){ if(state.entries[i].id===id){ src=state.entries[i]; break; } }
@@ -145,6 +155,18 @@ function repeatMeal(id){
   persist([{id:uid(),type:"meal",date:todayISO(),time:nowHM(),meal:src.meal,tags:(src.tags||[]).slice()}].concat(state.entries));
   render();
 }
+function painLoggedToday(){ var t=todayISO(); for(var i=0;i<state.entries.length;i++){ var e=state.entries[i]; if(e.type==="pain"&&e.date===t) return true; } return false; }
+function startEdit(id){
+  var e=null; for(var i=0;i<state.entries.length;i++){ if(state.entries[i].id===id){ e=state.entries[i]; break; } }
+  if(!e) return;
+  state.editId=id; state.kind=e.type; state.date=e.date; state.time=e.time||nowHM();
+  if(e.type==="meal"){ state.meal=e.meal||""; }
+  else if(e.type==="symptom"){ state.sev=e.sev; state.note=e.note||""; }
+  else if(e.type==="sport"){ state.snote=e.note||""; }
+  else { state.pain=e.level||0; state.stiff=!!e.stiff; state.pnote=e.note||""; }
+  state.tab="log"; render();
+}
+function cancelEdit(){ state.editId=null; state.meal=""; state.note=""; state.snote=""; state.pnote=""; render(); }
 
 function buildExport(){
   var prev="";
@@ -265,6 +287,30 @@ function buildRecipePrompt(kind){
    +"Réponds en français, directement avec les 3 idées.";
 }
 function sendRecipe(kind){ copyAndOpenLLM(buildRecipePrompt(kind)); }
+function buildReportHTML(){
+  var b=computeBloat(state.entries), p=computePain(state.entries), st=computeStiff(state.entries);
+  var dates=state.entries.map(function(e){return e.date;}).sort();
+  var period=dates.length?(fmtDate(dates[0])+" — "+fmtDate(dates[dates.length-1])):"—";
+  var counts={meal:0,symptom:0,pain:0,sport:0}; state.entries.forEach(function(e){ if(counts[e.type]!=null) counts[e.type]++; });
+  var pmax=0; state.entries.forEach(function(e){ if(e.type==="pain"&&e.level>pmax) pmax=e.level; });
+  function rows(list,fmt){ return list.slice(0,8).map(fmt).join(""); }
+  var susRows=rows(b.suspects,function(s){ return "<tr><td>"+esc(s.name)+"</td><td>"+s.bad+"/"+s.total+" ("+Math.round(s.rate*100)+"%)</td><td>"+(s.med!=null?("~"+s.med+" min"):"—")+"</td></tr>"; });
+  var painRows=rows(p.foods,function(f){ return "<tr><td>"+esc(f.name)+"</td><td>"+f.avgWith+" vs "+f.avgWithout+"</td><td>"+(f.delta>0?"+":"")+f.delta+" ("+f.n+" j)</td></tr>"; });
+  var stiffRows=rows(st.foods,function(f){ return "<tr><td>"+esc(f.name)+"</td><td>"+f.rateWith+"% vs "+f.rateWithout+"%</td><td>"+(f.delta>0?"+":"")+f.delta+" pts ("+f.n+" j)</td></tr>"; });
+  return "<!doctype html><html lang=\"fr\"><head><meta charset=\"utf-8\"><title>EatWise — rapport</title><style>body{font-family:Georgia,serif;color:#222;max-width:700px;margin:24px auto;padding:0 16px;line-height:1.45}h1{font-size:22px}h2{font-size:16px;margin:22px 0 6px;border-bottom:1px solid #ccc;padding-bottom:3px}table{border-collapse:collapse;width:100%;font-size:13px}td,th{border:1px solid #ddd;padding:5px 8px;text-align:left}th{background:#f4f4f4}p,li,div{font-size:13.5px}.muted{color:#666;font-size:12px}@media print{body{margin:0}}</style></head><body>"
+   +"<h1>EatWise — rapport de suivi</h1><p class=\"muted\">Généré le "+fmtDate(todayISO())+" · Période : "+period+" · "+counts.meal+" repas, "+counts.symptom+" ballonnements, "+counts.pain+" jours de douleur, "+counts.sport+" sports.</p>"
+   +"<h2>Douleur (spondylarthrite)</h2><p>Moyenne "+(p.overall!=null?p.overall:"—")+"/10 sur "+p.count+" jours notés · maximum "+pmax+"/10 · raideur matinale "+st.stiffDays+"/"+st.count+" matins.</p>"
+   +(painRows?"<h2>Douleur selon l'alimentation de la veille / avant-veille</h2><table><tr><th>Aliment</th><th>Douleur avec vs sans</th><th>Écart</th></tr>"+painRows+"</table>":"")
+   +(stiffRows?"<h2>Raideur matinale selon l'alimentation (J-1 / J-2)</h2><table><tr><th>Aliment</th><th>Raideur avec vs sans</th><th>Écart</th></tr>"+stiffRows+"</table>":"")
+   +(susRows?"<h2>Ballonnements — déclencheurs suspects (fenêtre 4 h)</h2><table><tr><th>Déclencheur</th><th>Suivis d'un ballonnement</th><th>Délai médian</th></tr>"+susRows+"</table>":"")
+   +((state.analysis&&state.analysis.text)?("<h2>Dernière analyse IA ("+esc(state.analysis.date)+")</h2>"+renderAnalysis(state.analysis.text)):"")
+   +"<p class=\"muted\">Suivi personnel réalisé avec EatWise. Corrélations indicatives sur petites données — ni avis médical, ni diagnostic.</p></body></html>";
+}
+function openReport(){
+  var w=window.open("","_blank");
+  if(!w){ alert("Autorise les pop-ups pour afficher le rapport."); return; }
+  w.document.write(buildReportHTML()); w.document.close();
+}
 function downloadBackup(){
   try{
     var slug=slugify(APP_NAME);
@@ -319,6 +365,30 @@ function computePain(entries){
   var days=[]; for(var i=13;i>=0;i--){ var d=new Date(); d.setDate(d.getDate()-i); var iso=d.toISOString().slice(0,10); days.push({iso:iso,level:painByDay[iso]!=null?painByDay[iso]:null}); }
   return {overall:overall,foods:foods,days:days,count:pains.length};
 }
+function computeStiff(entries){
+  var pains=entries.filter(function(e){return e.type==="pain";});
+  var stiffByDay={}; pains.forEach(function(p){ stiffByDay[p.date]=!!p.stiff; });
+  var tagsByDay={}; entries.filter(function(e){return e.type==="meal";}).forEach(function(m){ tagsByDay[m.date]=tagsByDay[m.date]||{}; (m.tags||[]).forEach(function(t){ tagsByDay[m.date][t]=true; }); });
+  var allTags={}; entries.filter(function(e){return e.type==="meal";}).forEach(function(m){ (m.tags||[]).forEach(function(t){ allTags[t]=true; }); });
+  var days=Object.keys(stiffByDay), stiffDays=0;
+  days.forEach(function(d){ if(stiffByDay[d]) stiffDays++; });
+  var foods=[];
+  Object.keys(allTags).forEach(function(t){
+    var w=[], wo=[];
+    days.forEach(function(day){
+      var p1=addDay(day,-1), p2=addDay(day,-2);
+      var ate=(tagsByDay[p1]&&tagsByDay[p1][t])||(tagsByDay[p2]&&tagsByDay[p2][t]);
+      (ate?w:wo).push(stiffByDay[day]?1:0);
+    });
+    if(w.length>=3 && wo.length){
+      var sum=function(a){ var s=0; for(var i=0;i<a.length;i++) s+=a[i]; return s; };
+      var rw=Math.round(100*sum(w)/w.length), rwo=Math.round(100*sum(wo)/wo.length);
+      foods.push({name:t,rateWith:rw,rateWithout:rwo,delta:rw-rwo,n:w.length});
+    }
+  });
+  foods.sort(function(a,b){return b.delta-a.delta;});
+  return {count:days.length, stiffDays:stiffDays, foods:foods};
+}
 function groupEntries(entries){
   var g={}; entries.forEach(function(e){ (g[e.date]=g[e.date]||[]).push(e); });
   Object.keys(g).forEach(function(k){ g[k].sort(function(a,b){ var pa=a.type==="pain"?1:0, pb=b.type==="pain"?1:0; return pb-pa||ts(b)-ts(a); }); });
@@ -346,35 +416,36 @@ function renderAnalysis(txt){
 }
 
 function headerHTML(){ return '<header class="hdr"><div class="wrap"><div class="eyebrow">'+esc(APP_NAME)+'</div><div class="tagline">Eat wise, feel nice.</div><h1 class="h1">Écoute ton corps, parle à ton assiette.</h1><p class="sub">Observe, comprends, ajuste — et sens-toi mieux.</p></div></header>'; }
-function tabsHTML(){ var tabs=[["log","Ajouter"],["history","Journal"+(state.entries.length?" · "+state.entries.length:"")],["analyse","Analyse"],["recipes","Recettes"],["data","Données"]]; return '<div class="wrap tabs">'+tabs.map(function(t){return '<button class="tab '+(state.tab===t[0]?"on":"")+'" data-act="tab" data-val="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>'; }
+function tabsHTML(){ var dot=painLoggedToday()?"":' <span style="color:var(--alert)">●</span>'; var tabs=[["log","Ajouter"+dot],["history","Journal"+(state.entries.length?" · "+state.entries.length:"")],["analyse","Analyse"],["recipes","Recettes"],["data","Données"]]; return '<div class="wrap tabs">'+tabs.map(function(t){return '<button class="tab '+(state.tab===t[0]?"on":"")+'" data-act="tab" data-val="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>'; }
 function footerHTML(){ return '<footer class="foot">Données gardées sur ton téléphone. Pense à télécharger une sauvegarde. · Suivi personnel, pas un avis médical — parles-en à ton médecin/rhumatologue. · v'+VERSION+'</footer>'; }
 
 function logHTML(){
   var KINDS=[["meal","🍽","Mangé","#3FBAA0"],["symptom","🎈","Ballonné","#F09A4E"],["pain","🔥","Douleur","#E2707B"],["sport","🏃","Sport","#8B7BC7"]];
-  var tiles='<div class="tiles">'+KINDS.map(function(k){ var on=state.kind===k[0]; return '<button class="tile" data-act="kind" data-val="'+k[0]+'" style="'+(on?"background:"+k[3]+";color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.16)":"background:"+k[3]+"1C;color:"+k[3])+'"><span class="em">'+k[1]+'</span>'+k[2]+'</button>'; }).join("")+'</div>';
+  var tiles='<div class="tiles">'+KINDS.map(function(k){ var on=state.kind===k[0]; var dot=(k[0]==="pain"&&!painLoggedToday())?' <span style="font-size:11px">●</span>':''; return '<button class="tile" data-act="kind" data-val="'+k[0]+'" style="'+(on?"background:"+k[3]+";color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.16)":"background:"+k[3]+"1C;color:"+k[3])+'"><span class="em">'+k[1]+'</span>'+k[2]+dot+'</button>'; }).join("")+'</div>';
+  var editBanner=state.editId?'<div class="card" style="padding:10px 14px;margin-bottom:12px;border-left:3px solid var(--ochre)"><span style="font-size:13px">✏️ Modification d\'une entrée</span><button class="delbtn" style="margin:0 0 0 14px" data-act="cancelEdit">Annuler</button></div>':'';
   var dt='<div class="row"><div style="flex:1"><label class="lab">Date</label><input type="date" class="field" data-field="date" value="'+state.date+'"></div>'+(state.kind!=="pain"?'<div style="width:120px"><label class="lab">Heure</label><input type="time" class="field" data-field="time" value="'+state.time+'"></div>':'')+'</div>';
   var form="";
   if(state.kind==="meal"){
     form='<div style="margin-bottom:6px"><label class="lab">Repas / boisson</label><input class="field" data-field="meal" value="'+esc(state.meal)+'" placeholder="ex. chou-fleur, oignon, bœuf, Hoegaarden"></div>'
       +'<div id="tagpreview" class="muted" style="font-size:12px;margin:0 0 16px">'+esc(tagPreviewText(state.meal))+'</div>'
-      +'<button class="btn brand" data-act="addMeal">Enregistrer le repas</button>';
+      +'<button class="btn brand" data-act="addMeal">'+(state.editId?"Mettre à jour le repas":"Enregistrer le repas")+'</button>';
   } else if(state.kind==="symptom"){
     var sev=SEV.map(function(l){return chipFlex(l.label,"sev",l.v,state.sev===l.v,l.color);}).join("");
     form='<div style="margin-bottom:14px"><label class="lab">Intensité</label><div style="display:flex;gap:8px">'+sev+'</div></div>'
       +'<div style="margin-bottom:16px"><label class="lab">Note</label><input class="field" data-field="note" value="'+esc(state.note)+'" placeholder="ex. ventre gonflé, gaz"></div>'
-      +'<button class="btn ochre" data-act="addSymptom">Enregistrer le ballonnement</button>';
+      +'<button class="btn ochre" data-act="addSymptom">'+(state.editId?"Mettre à jour le ballonnement":"Enregistrer le ballonnement")+'</button>';
   } else if(state.kind==="sport"){
     form='<div style="margin-bottom:16px"><label class="lab">Activité</label><input class="field" data-field="snote" value="'+esc(state.snote)+'" placeholder="ex. vélo elliptique 30 min"></div>'
-      +'<button class="btn sport" data-act="addSport">Enregistrer le sport</button>';
+      +'<button class="btn sport" data-act="addSport">'+(state.editId?"Mettre à jour le sport":"Enregistrer le sport")+'</button>';
   } else {
     form='<div style="margin-bottom:6px"><label class="lab">Niveau de douleur (0 = rien, 10 = très fort)</label>'
       +'<input type="range" min="0" max="10" data-field="pain" value="'+state.pain+'" style="width:100%">'
       +'<div id="painval" style="text-align:center;font-family:var(--serif);font-size:22px;color:var(--alert)">'+state.pain+'</div></div>'
       +'<div style="margin:10px 0 14px">'+chip((state.stiff?"✓ ":"")+"Raideur matinale","stiff","",state.stiff,"var(--ochre)")+'</div>'
       +'<div style="margin-bottom:16px"><label class="lab">Note</label><input class="field" data-field="pnote" value="'+esc(state.pnote)+'" placeholder="ex. bas du dos, matin difficile"></div>'
-      +'<button class="btn alert" data-act="addPain">Enregistrer la douleur du jour</button>';
+      +'<button class="btn alert" data-act="addPain">'+(state.editId?"Mettre à jour la douleur":"Enregistrer la douleur du jour")+'</button>';
   }
-  return tiles+'<div class="card">'+dt+form+'</div>';
+  return tiles+editBanner+'<div class="card">'+dt+form+'</div>';
 }
 
 function historyHTML(){
@@ -385,15 +456,15 @@ function historyHTML(){
       if(e.type==="meal"){
         var tg=e.tags||[];
         var pills=(tg.length||e.sport)?'<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0">'+tg.map(function(t){return '<span class="tagpill">'+esc(t)+'</span>';}).join("")+(e.sport?'<span class="tagpill sport">Sport après</span>':'')+'</div>':'';
-        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--brand)"><span class="meta">'+esc(e.time)+' · repas</span>'+(e.meal?'<div style="font-size:15.5px;margin:6px 0 4px">'+esc(e.meal)+'</div>':'')+pills+'<button class="delbtn" style="color:var(--brand);margin-right:18px" data-act="again" data-val="'+e.id+'">↻ Encore ce repas</button><button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
+        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--brand)"><span class="meta">'+esc(e.time)+' · repas</span>'+(e.meal?'<div style="font-size:15.5px;margin:6px 0 4px">'+esc(e.meal)+'</div>':'')+pills+'<button class="delbtn" style="color:var(--sport);margin-right:18px" data-act="edit" data-val="'+e.id+'">Modifier</button><button class="delbtn" style="color:var(--brand);margin-right:18px" data-act="again" data-val="'+e.id+'">↻ Encore ce repas</button><button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
       }
       if(e.type==="sport"){
-        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--sport)"><div class="between"><span class="meta">'+esc(e.time)+' · sport</span><span style="font-size:12.5px;font-weight:600;color:var(--sport)">🏃 Sport</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
+        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--sport)"><div class="between"><span class="meta">'+esc(e.time)+' · sport</span><span style="font-size:12.5px;font-weight:600;color:var(--sport)">🏃 Sport</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" style="color:var(--sport);margin-right:18px" data-act="edit" data-val="'+e.id+'">Modifier</button><button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
       }
       if(e.type==="symptom"){ var s=null; for(var i=0;i<SEV.length;i++){ if(SEV[i].v===e.sev) s=SEV[i]; } if(!s) s=SEV[SEV.length-1];
-        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid '+s.color+'"><div class="between"><span class="meta">'+esc(e.time)+' · ballonné</span><span style="font-size:12.5px;font-weight:600;color:'+s.color+'">🎈 '+s.label+'</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
+        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid '+s.color+'"><div class="between"><span class="meta">'+esc(e.time)+' · ballonné</span><span style="font-size:12.5px;font-weight:600;color:'+s.color+'">🎈 '+s.label+'</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" style="color:var(--sport);margin-right:18px" data-act="edit" data-val="'+e.id+'">Modifier</button><button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
       }
-      return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--alert)"><div class="between"><span class="meta">douleur du jour</span><span style="font-size:12.5px;font-weight:600;color:var(--alert)">🔥 '+e.level+'/10'+(e.stiff?' · raideur':'')+'</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
+      return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--alert)"><div class="between"><span class="meta">douleur du jour</span><span style="font-size:12.5px;font-weight:600;color:var(--alert)">🔥 '+e.level+'/10'+(e.stiff?' · raideur':'')+'</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" style="color:var(--sport);margin-right:18px" data-act="edit" data-val="'+e.id+'">Modifier</button><button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
     }).join("");
     return '<div style="margin-bottom:18px"><div class="daytitle">'+fmtDate(d)+'</div>'+items+'</div>';
   }).join("");
@@ -420,13 +491,23 @@ function analyseHTML(){
   });
   h+='<div class="sectitle" style="margin-top:18px">Douleurs (spondylarthrite)</div>';
   if(p.count===0){ h+='<div class="card center muted">Note ton ressenti chaque jour pour voir la courbe et les liens.</div>'; return h+claudeBlock; }
-  var bars=p.days.map(function(d){ var hh=d.level==null?0:Math.max(3,(d.level/10)*80); return '<div class="daycol"><div class="dayfill" style="height:'+hh+'px;background:'+(d.level==null?"#E8EBED":"var(--alert)")+'"></div><span class="dayx">'+d.iso.slice(8,10)+'</span></div>'; }).join("");
-  h+='<div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:2px">14 derniers jours · moyenne '+(p.overall!=null?p.overall:"—")+'/10</div><div class="daybars">'+bars+'</div></div>';
+  var topSus={}; b.suspects.forEach(function(s){ if(s.rate>=0.5&&s.total>=2) topSus[s.name]=1; });
+  var symByDay={}, susByDay={};
+  state.entries.forEach(function(e){ if(e.type==="symptom"&&e.sev>=2){ symByDay[e.date]=1; } else if(e.type==="meal"){ (e.tags||[]).forEach(function(t){ if(topSus[t]) susByDay[e.date]=1; }); } });
+  var bars=p.days.map(function(d){ var hh=d.level==null?0:Math.max(3,(d.level/10)*80); var mk='<div style="height:12px;font-size:8px;line-height:6px;text-align:center">'+(symByDay[d.iso]?'<span style="color:var(--ochre)">●</span>':'')+(susByDay[d.iso]?'<span style="color:var(--brand)">◆</span>':'')+'</div>'; return '<div class="daycol">'+mk+'<div class="dayfill" style="height:'+hh+'px;background:'+(d.level==null?"#E8EBED":"var(--alert)")+'"></div><span class="dayx">'+d.iso.slice(8,10)+'</span></div>'; }).join("");
+  h+='<div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:2px">14 derniers jours · douleur moyenne '+(p.overall!=null?p.overall:"—")+'/10</div><div class="daybars">'+bars+'</div><div class="muted" style="font-size:11px;margin-top:6px"><span style="color:var(--alert)">▮</span> douleur · <span style="color:var(--ochre)">●</span> ballonnement · <span style="color:var(--brand)">◆</span> repas avec suspect</div></div>';
   if(p.foods.length>0){
     var rows=p.foods.map(function(f){ var col=f.delta>=1?"var(--alert)":f.delta<=-1?"var(--good)":"var(--muted)"; var sign=f.delta>0?"+":""; return '<div class="foodrow"><span>'+esc(f.name)+' <span class="muted" style="font-size:12px">('+f.n+'j)</span></span><span class="meta"><b style="color:'+col+'">'+sign+f.delta+'</b> <span class="muted">('+f.avgWith+' vs '+f.avgWithout+')</span></span></div>'; }).join("");
     h+='<div class="card"><div style="font-size:13px;color:var(--muted);margin-bottom:10px">Douleur moyenne les jours où l\'aliment a été mangé <b>la veille ou l\'avant-veille</b>, vs les autres jours. La spondylarthrite réagit avec retard : les repas du jour même sont ignorés. Écart positif = piste à surveiller.</div>'+rows+'</div>';
   } else {
     h+='<div class="card center muted">Continue d\'enregistrer tes repas et ton ressenti (min. 3 jours par aliment).</div>';
+  }
+  var st=computeStiff(state.entries);
+  if(st.count>=3){
+    h+='<div class="card"><div style="font-size:13px;margin-bottom:6px"><b>Raideur matinale</b> <span class="muted">· '+st.stiffDays+' matin'+(st.stiffDays>1?"s":"")+' raide'+(st.stiffDays>1?"s":"")+' sur '+st.count+' notés</span></div>';
+    if(st.foods.length){ h+='<div class="muted" style="font-size:12px;margin-bottom:6px">% de matins raides quand l\'aliment a été mangé la veille/avant-veille, vs sans.</div>'+st.foods.map(function(f){ var col=f.delta>=20?"var(--alert)":f.delta<=-20?"var(--good)":"var(--muted)"; var sign=f.delta>0?"+":""; return '<div class="foodrow"><span>'+esc(f.name)+' <span class="muted" style="font-size:12px">('+f.n+'j)</span></span><span class="meta"><b style="color:'+col+'">'+sign+f.delta+' pts</b> <span class="muted">('+f.rateWith+'% vs '+f.rateWithout+'%)</span></span></div>'; }).join(""); }
+    else { h+='<div class="muted" style="font-size:12.5px">Pas encore assez de jours par aliment (min. 3).</div>'; }
+    h+='</div>';
   }
   h+='<div class="card muted" style="font-size:12px">Liens indicatifs et bruités : la spondylarthrite évolue par poussées. À croiser avec ton rhumatologue.</div>';
   return h+claudeBlock;
@@ -444,6 +525,7 @@ function recipesHTML(){
 function dataHTML(){
   var slug=slugify(APP_NAME);
   return '<div class="card"><span class="cardhd">Sauvegarde</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Tes données vivent uniquement sur ce téléphone. Garde une copie de temps en temps.</p><button class="btn outline" data-act="download">Télécharger mes données (.json)</button><label style="display:block;margin-top:12px;font-size:14px;color:var(--brand);font-weight:600">Restaurer depuis une sauvegarde<input type="file" accept="application/json,.json" data-field="file" style="display:block;margin-top:6px;font-size:13px;color:var(--ink)"></label><p class="muted" style="font-size:11.5px;margin:8px 0 0">Fichier : <span class="meta">'+slug+'/data/'+slug+'.json</span> (nom fixe, écrase l\'ancien).</p></div>'
+  +'<div class="card"><span class="cardhd">Pour ton médecin</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Un rapport imprimable (PDF via le menu d\'impression du navigateur) à montrer à ton rhumatologue ou diététicien.</p><button class="btn brand" data-act="report">Ouvrir le rapport imprimable</button></div>'
   +'<div class="card muted" style="font-size:12.5px">'+state.entries.length+' entrées enregistrées.'+(state.analysis?' · Analyse IA du '+state.analysis.date+'.':' · Pas encore d\'analyse IA.')+'</div>';
 }
 
@@ -469,7 +551,7 @@ app.addEventListener("click",function(e){
   var el=e.target.closest("[data-act]"); if(!el) return;
   var act=el.getAttribute("data-act"), val=el.getAttribute("data-val");
   if(act==="tab"){ state.tab=val; render(); }
-  else if(act==="kind"){ state.kind=val; render(); }
+  else if(act==="kind"){ state.editId=null; state.kind=val; render(); }
   else if(act==="sev"){ state.sev=+val; render(); }
   else if(act==="stiff"){ state.stiff=!state.stiff; render(); }
   else if(act==="addMeal"){ addMeal(); }
@@ -478,6 +560,9 @@ app.addEventListener("click",function(e){
   else if(act==="addPain"){ addPain(); }
   else if(act==="del"){ removeEntry(val); }
   else if(act==="again"){ repeatMeal(val); }
+  else if(act==="edit"){ startEdit(val); }
+  else if(act==="cancelEdit"){ cancelEdit(); }
+  else if(act==="report"){ openReport(); }
   else if(act==="sendClaude"){ sendToClaude(); }
   else if(act==="recipe"){ sendRecipe(val); }
   else if(act==="llm"){ state.llm=val; store.set(LLM_KEY,val); render(); }

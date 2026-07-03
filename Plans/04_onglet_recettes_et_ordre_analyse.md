@@ -1,6 +1,5 @@
 ---
-status: in-progress
-priority: now
+status: done
 ---
 
 # Plan 04 — Onglet Recettes + réorganisation de l'onglet Analyse
@@ -37,7 +36,7 @@ clé `eatwise-llm`), bouton générique « Analyser mes données ». Claude et C
 pré-remplis (`?q=`), Gemini s'ouvre avec le rapport copié (pas de pré-remplissage supporté),
 « Copier seulement » copie et confirme. Utilisé par l'analyse ET les recettes.
 
-## P04.3 — Docs + gate + déploiement · SAFE · low · ⏳
+## P04.3 — Docs + gate + déploiement · SAFE · low · ✅ DONE (3.19.0 confirmée en prod)
 
 Section « Prompt Recettes » dans le miroir eatwise-prompt.md, historique de version,
 verify.sh (golden buildExport inchangé attendu), prod confirmée.

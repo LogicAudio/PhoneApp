@@ -23,3 +23,10 @@ déplacée dans l'onglet Analyse avec note multi-IA, historique d'analyses daté
 bouton « Encore ce repas », storage.persist(), service worker network-first = mises à jour
 instantanées (3.17.0) ; prompt recohérencé vers l'onglet Analyse, golden recalé (3.17.1).
 Confirmée en production (commit f7c0d19).
+
+## 2026-07-03 — Plan 04 done: EatWise 3.18.0 → 3.19.0 (Recettes + choix de l'IA)
+Onglet Recettes (déjeuner rapide / dîner / souper, prompt chef-nutritionniste FODMAP construit
+sur les aliments tolérés/suspects + envies du jour), onglet Analyse réordonné (graphiques →
+analyse IA → mise à jour), sélecteur d'IA mémorisé (Claude/ChatGPT pré-remplis via ?q=,
+Gemini copie+ouverture, ou copier seulement) avec bouton générique « Analyser mes données ».
+Confirmée en production (commit 06e38ce).
