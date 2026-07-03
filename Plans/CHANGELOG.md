@@ -55,3 +55,10 @@ quotidien, case du matin, situation santé — champ additif labels), libellés 
 prompt v4 avec détection de spécialité (dermatologie/rhumatologie/gastro selon les intitulés),
 golden recalé. Bouton « Buy me a coffee » (buymeacoffee.com/logicaudio) au footer et dans
 Données. En production (commit 6cecd29) après un incident intermittent GitHub Pages.
+
+## 2026-07-03 — Plan 10 done: EatWise 3.28.0 (associations d'aliments + graphe normalisé)
+computeBloatPairs() : paires d'aliments présentes ensemble avant les épisodes (>=2 fois),
+affichées dans Analyse et injectées dans le RÉSUMÉ du prompt (consigne « départager les
+co-suspects », golden recalé) — l'analyseur maison voulu par Thomas. Ballonnement normalisé
+0-10 en barres groupées sur les deux graphes. En production (665f4cc) après une série
+d'échecs deploy-pages côté GitHub, résorbés par relances automatiques de la boucle.

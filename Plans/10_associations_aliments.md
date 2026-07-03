@@ -1,6 +1,5 @@
 ---
-status: in-progress
-priority: now
+status: done
 ---
 
 # Plan 10 — Statistiques d'associations d'aliments → prompt d'analyse
@@ -28,4 +27,4 @@ Ligne « Associations récurrentes avant épisodes » dans le RÉSUMÉ + consign
 utiliser les associations et les repas complets pour départager les co-suspects. Miroir
 eatwise-prompt.md synchronisé.
 
-## P10.3 — Gate (golden recalé) + déploiement · SAFE · low · ⏳ gate en cours
+## P10.3 — Gate (golden recalé) + déploiement · SAFE · low · ✅ DONE (3.28.0 en prod après 3 échecs deploy-pages transitoires côté GitHub)
