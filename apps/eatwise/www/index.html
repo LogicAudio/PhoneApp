@@ -88,7 +88,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.27.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.28.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 var LLM_KEY="eatwise-llm";
 var LLMS={
@@ -194,6 +194,8 @@ function buildExport(){
   b.suspects.slice(0,8).forEach(function(s){ sum.push("- "+s.name+" : "+s.bad+"/"+s.total+" prises suivies d'un épisode ("+Math.round(s.rate*100)+"%"+(s.med!=null?", délai médian ~"+s.med+" min":"")+")"); });
   if(p.overall!=null) sum.push("- "+LBL("daily")+" moyenne : "+p.overall+"/10 sur "+p.count+" jours notés");
   p.foods.slice(0,8).forEach(function(f){ sum.push("- "+f.name+" mangé la veille/avant-veille : "+lc(LBL("daily"))+" "+f.avgWith+" vs "+f.avgWithout+" sans ("+(f.delta>0?"+":"")+f.delta+", "+f.n+" jours)"); });
+  var bpairs=computeBloatPairs(state.entries);
+  if(bpairs.length){ sum.push("- Associations récurrentes présentes ensemble dans les 4 h avant un épisode : "+bpairs.map(function(x){return x.pair+" ("+x.n+"×)";}).join(", ")); }
   var summary=sum.length?("RÉSUMÉ CALCULÉ PAR L'APP (indicatif, à recouper avec les données brutes) :\n"+sum.join("\n")+"\n\n"):"";
   return "Adopte la posture d'un expert en nutrition clinique et en médecine des maladies chroniques (base : gastro-entérologie, immunologie et maladies auto-immunes/inflammatoires). Ma situation : "+LBL("condition")+". Mes suivis : symptôme rapide « "+LBL("fast")+" », suivi quotidien « "+LBL("daily")+" » (0 à 10) avec indicateur du matin « "+lc(LBL("flag"))+" ».\n"
 +"PREMIÈRE TÂCHE : identifie la ou les spécialités médicales pertinentes d'après ces intitulés (ex. rhumatologie pour des douleurs articulaires, dermatologie pour rougeurs ou eczéma, gastro-entérologie pour la digestion) et cible tes raisonnements et tes sources en conséquence. Appuie-toi sur les données scientifiques établies ; si tu disposes de la recherche web, vérifie et cite de vraies sources récentes (ex. PubMed) — sinon n'invente AUCUNE référence et dis-le clairement. Ceci reste un suivi personnel, pas un avis médical : formule des hypothèses et des expériences prudentes à tester, jamais des prescriptions.\n\n"
@@ -210,6 +212,7 @@ function buildExport(){
 +"MÉTHODE :\n"
 +"- Distingue corrélation et causalité ; pour chaque hypothèse, donne un niveau de confiance (faible/moyen/élevé) et le nombre d'observations qui la soutiennent.\n"
 +"- Pour les symptômes rapides, raisonne aussi par familles d'aliments (FODMAP si pertinent, fermentescibles, alcool et boissons gazeuses, gras, sport post-prandial), pas seulement aliment par aliment.\n"
++"- Un épisode peut venir d'un autre aliment du même repas ou d'une association : sers-toi des statistiques d'associations fournies et des repas complets pour départager les co-suspects.\n"
 +"- Ne conclus jamais sur moins de 3 observations ; dis explicitement quand les données ne suffisent pas encore.\n"
 +"- Signale tout signal d'alerte qui mérite une consultation (perte de poids, sang, douleur nocturne inhabituelle, fièvre...).\n\n"
 +"CE QUE TU DOIS ME RENVOYER — deux parties distinctes :\n"
@@ -323,11 +326,12 @@ function buildReportBody(){
   var trigs=[]; es.forEach(function(e){ if(e.type==="meal"||e.type==="sport") trigs.push({t:ts(e),label:(e.type==="meal"?"repas de ":"sport de ")+(e.time||"?")}); });
   function delayInfo(e){ var stime=ts(e), best=null; trigs.forEach(function(g){ if(g.t<stime && stime-g.t<=WINDOW_MS && (!best||g.t>best.t)) best=g; }); if(!best) return ""; return ", environ "+fmtDelay(Math.round((stime-best.t)/60000))+" après le "+best.label; }
   var painByDay={}; pains.forEach(function(x){ painByDay[x.date]=x.level; });
-  var symDays={}; es.forEach(function(e){ if(e.type==="symptom"&&e.sev>=2) symDays[e.date]=1; });
-  var curveMk="", curveBars="", curveDates="";
-  for(var i=27;i>=0;i--){ var d=addDay(todayISO(),-i); var lv=painByDay[d];
-    curveMk+='<div style="flex:1;text-align:center;font-size:8px;color:#E2707B">'+(symDays[d]?"●":"")+'</div>';
-    curveBars+='<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:90px">'+(lv==null?'<div style="width:70%;height:2px;background:#e5e5e5;-webkit-print-color-adjust:exact;print-color-adjust:exact"></div>':'<div style="width:70%;height:'+Math.max(3,lv*9)+'px;background:#E2707B;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-radius:2px 2px 0 0"></div>')+'</div>';
+  var repSymMax={}; es.forEach(function(e){ if(e.type==="symptom"){ var sv=(typeof e.sev==="number")?e.sev:2; if(repSymMax[e.date]==null||sv>repSymMax[e.date]) repSymMax[e.date]=sv; } });
+  var curveBars="", curveDates="";
+  for(var i=27;i>=0;i--){ var d=addDay(todayISO(),-i); var lv=painByDay[d]; var sv=repSymMax[d];
+    var pb=(lv==null?'<div style="width:44%;height:2px;background:#e5e5e5;-webkit-print-color-adjust:exact;print-color-adjust:exact"></div>':'<div style="width:44%;height:'+Math.max(3,lv*9)+'px;background:#E2707B;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-radius:2px 2px 0 0"></div>');
+    var sb=(sv==null?'<div style="width:44%"></div>':'<div style="width:44%;height:'+Math.max(3,Math.round(sv*90/3))+'px;background:#F09A4E;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-radius:2px 2px 0 0"></div>');
+    curveBars+='<div style="flex:1;display:flex;align-items:flex-end;justify-content:center;gap:1px;height:90px">'+pb+sb+'</div>';
     curveDates+='<div style="flex:1;text-align:center;font-size:7.5px;color:#888">'+(((27-i)%2===0)?d.slice(8,10):"")+'</div>';
   }
   var since=addDay(todayISO(),-13);
@@ -352,10 +356,9 @@ function buildReportBody(){
    +"<div><span class=\"kpi\">"+LBL("daily")+" moyenne <b>"+(p.overall!=null?p.overall:"—")+"</b> / 10</span><span class=\"kpi\">"+LBL("daily")+" maximale <b>"+pmax+"</b> / 10</span><span class=\"kpi\">Jours à "+lc(LBL("daily"))+" ≥ 4 : <b>"+pge4+"</b> / "+p.count+"</span><span class=\"kpi\">"+LBL("flag")+" <b>"+st.stiffDays+"</b> matins / "+st.count+"</span><span class=\"kpi\">"+LBL("fast")+"s modérés à forts : <b>"+((symCounts[2]||0)+(symCounts[3]||0))+"</b></span>"+(b.avgDelay!=null?"<span class=\"kpi\">Délai déclencheur → "+lc(LBL("fast"))+" : <b>"+fmtDelay(b.avgDelay)+"</b> (médiane)</span>":"")+"</div>"
    +"<p class=\"muted\">Échelle : évaluation numérique quotidienne de 0 (aucun symptôme) à 10 (très fort). La durée de « "+lc(LBL("flag"))+" » n\'est pas suivie (seulement sa présence)"+(LBL("flag")===DEFAULT_LABELS.flag?" — à préciser oralement si utile : une raideur de plus de 30 minutes oriente vers une douleur inflammatoire":"")+".</p>"
    +"<h2>"+LBL("daily")+" des 28 derniers jours (échelle de 0 à 10)</h2>"
-   +"<div style=\"display:flex;gap:2px;margin-left:24px;height:10px\">"+curveMk+"</div>"
    +"<div style=\"display:flex;gap:6px\"><div style=\"width:18px;display:flex;flex-direction:column;justify-content:space-between;height:90px;font-size:9px;color:#888;text-align:right;line-height:1\"><span>10</span><span>5</span><span>0</span></div><div style=\"flex:1;position:relative\"><div style=\"position:absolute;left:0;right:0;top:0;border-top:1px dashed #ddd\"></div><div style=\"position:absolute;left:0;right:0;top:45px;border-top:1px dashed #ddd\"></div><div style=\"position:absolute;left:0;right:0;bottom:0;border-top:1px solid #bbb\"></div><div style=\"display:flex;align-items:flex-end;gap:2px;height:90px\">"+curveBars+"</div></div></div>"
    +"<div style=\"display:flex;gap:2px;margin-left:24px\">"+curveDates+"</div>"
-   +"<p class=\"muted\">Hauteur des barres : niveau quotidien, de 0 à 10 (trait gris = jour non renseigné). Rangée au-dessus du graphique : ● = au moins un épisode « "+lc(LBL("fast"))+" » modéré ou fort ce jour-là — présence/absence, échelle distincte de celle du niveau.</p>"
+   +"<p class=\"muted\">Barres foncées : "+lc(LBL("daily"))+" quotidien de 0 à 10 (trait gris = jour non renseigné). Barres claires : "+lc(LBL("fast"))+" du jour normalisé sur la même échelle 0-10 (Aucune = 0, Léger ≈ 3, Moyen ≈ 7, Fort = 10 — pire épisode du jour).</p>"
    +"<h2>Journal aliments & symptômes — 14 derniers jours</h2>"+(journal||"<p class=\"muted\">Aucune entrée sur les 14 derniers jours.</p>")
    +(susRows?"<h2>Déclencheurs suspects — "+lc(LBL("fast"))+"s (fenêtre de 4 heures)</h2><table><tr><th>Déclencheur</th><th>Suivi d\'un épisode</th><th>Délai médian</th></tr>"+susRows+"</table>":"")
    +(painRows?"<h2>"+LBL("daily")+" selon l\'alimentation de la veille ou de l\'avant-veille</h2><table><tr><th>Aliment</th><th>Niveau moyen avec / sans</th><th>Écart</th></tr>"+painRows+"</table>":"")
@@ -418,6 +421,17 @@ function computePain(entries){
   var foods=Object.keys(foodStat).map(function(k){return foodStat[k];}).filter(function(f){return f.avgWithout!=null;}).map(function(f){ f.delta=Math.round((f.avgWith-f.avgWithout)*10)/10; return f; }).sort(function(a,b){return b.delta-a.delta;});
   var days=[]; for(var i=13;i>=0;i--){ var d=new Date(); d.setDate(d.getDate()-i); var iso=d.toISOString().slice(0,10); days.push({iso:iso,level:painByDay[iso]!=null?painByDay[iso]:null}); }
   return {overall:overall,foods:foods,days:days,count:pains.length};
+}
+function computeBloatPairs(entries){
+  var sy=entries.filter(function(e){return e.type==="symptom"&&e.sev>=2;});
+  var pairs={};
+  sy.forEach(function(sm){
+    var stt=ts(sm), foods={};
+    entries.forEach(function(e){ if(e.type==="meal"&&ts(e)<stt&&stt-ts(e)<=WINDOW_MS){ (e.tags||[]).forEach(function(t){ foods[t]=1; }); } });
+    var list=Object.keys(foods).sort();
+    for(var i=0;i<list.length;i++){ for(var j=i+1;j<list.length;j++){ var k=list[i]+" + "+list[j]; pairs[k]=(pairs[k]||0)+1; } }
+  });
+  return Object.keys(pairs).map(function(k){return {pair:k,n:pairs[k]};}).filter(function(x){return x.n>=2;}).sort(function(a,b){return b.n-a.n;}).slice(0,6);
 }
 function computeStiff(entries){
   var pains=entries.filter(function(e){return e.type==="pain";});
@@ -554,20 +568,24 @@ function analyseHTML(){
       return '<div style="margin-bottom:12px"><div class="between" style="margin-bottom:5px"><b style="font-size:14.5px">'+esc(x.name)+'</b><span class="meta">'+x.bad+' × problème sur '+x.total+(x.med!=null?' · ~'+x.med+' min':'')+'</span></div><div class="bar" style="height:12px"><div class="barfill" style="width:'+Math.max(8,Math.round(100*x.bad/maxBad))+'%;background:'+col+'"></div></div></div>';
     }).join("")+'</div>';
   }
+  var bpairs=computeBloatPairs(state.entries);
+  if(bpairs.length){
+    h+='<div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:8px">Associations récurrentes avant les épisodes — un « coupable » peut en cacher un autre :</div>'+bpairs.map(function(x){ return '<div class="foodrow"><span>'+esc(x.pair)+'</span><span class="meta">ensemble avant '+x.n+' épisodes</span></div>'; }).join("")+'</div>';
+  }
   h+='<div class="sectitle" style="margin-top:18px">'+LBL("daily")+' (suivi quotidien)</div>';
   if(p.count===0){ h+='<div class="card center muted">Note ton ressenti chaque jour pour voir la courbe et les liens.</div>'; return h+claudeBlock; }
   var topSus={}; b.suspects.forEach(function(s){ if(s.rate>=0.5&&s.total>=2) topSus[s.name]=1; });
-  var symByDay={}, susByDay={};
-  state.entries.forEach(function(e){ if(e.type==="symptom"&&e.sev>=2){ symByDay[e.date]=1; } else if(e.type==="meal"){ (e.tags||[]).forEach(function(t){ if(topSus[t]) susByDay[e.date]=1; }); } });
-  var mkRow='<div style="display:flex;gap:4px;margin-left:24px;height:12px;font-size:8px;line-height:12px">'+p.days.map(function(d){ return '<div style="flex:1;text-align:center">'+(symByDay[d.iso]?'<span style="color:var(--ochre)">●</span>':'')+(susByDay[d.iso]?'<span style="color:var(--brand)">◆</span>':'')+'</div>'; }).join("")+'</div>';
-  var barCols=p.days.map(function(d){ return '<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:80px">'+(d.level==null?'<div style="width:100%;height:2px;background:#E8EBED"></div>':'<div class="dayfill" style="width:100%;height:'+Math.max(2,d.level*8)+'px;background:var(--alert)"></div>')+'</div>'; }).join("");
+  var symMax={}, susByDay={};
+  state.entries.forEach(function(e){ if(e.type==="symptom"){ var sv=(typeof e.sev==="number")?e.sev:2; if(symMax[e.date]==null||sv>symMax[e.date]) symMax[e.date]=sv; } else if(e.type==="meal"){ (e.tags||[]).forEach(function(t){ if(topSus[t]) susByDay[e.date]=1; }); } });
+  var mkRow='<div style="display:flex;gap:4px;margin-left:24px;height:12px;font-size:8px;line-height:12px">'+p.days.map(function(d){ return '<div style="flex:1;text-align:center">'+(susByDay[d.iso]?'<span style="color:var(--brand)">◆</span>':'')+'</div>'; }).join("")+'</div>';
+  var barCols=p.days.map(function(d){ var pb=(d.level==null?'<div style="width:45%;height:2px;background:#E8EBED"></div>':'<div style="width:45%;height:'+Math.max(2,d.level*8)+'px;background:var(--alert);border-radius:2px 2px 0 0"></div>'); var sv=symMax[d.iso]; var sb=(sv==null?'<div style="width:45%"></div>':'<div style="width:45%;height:'+Math.max(2,Math.round(sv*80/3))+'px;background:var(--ochre);border-radius:2px 2px 0 0"></div>'); return '<div style="flex:1;display:flex;align-items:flex-end;justify-content:center;gap:1px;height:80px">'+pb+sb+'</div>'; }).join("");
   var dateRow='<div style="display:flex;gap:4px;margin-left:24px;margin-top:2px">'+p.days.map(function(d){ return '<div style="flex:1;text-align:center"><span class="dayx">'+d.iso.slice(8,10)+'</span></div>'; }).join("")+'</div>';
   h+='<div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">'+LBL("daily")+' des 14 derniers jours (échelle 0 à 10) · moyenne '+(p.overall!=null?p.overall:"—")+'/10</div>'
    +mkRow
    +'<div style="display:flex;gap:6px"><div style="width:18px;display:flex;flex-direction:column;justify-content:space-between;height:80px;font-size:9px;color:var(--muted);text-align:right;line-height:1"><span>10</span><span>5</span><span>0</span></div>'
    +'<div style="flex:1;position:relative"><div style="position:absolute;left:0;right:0;top:0;border-top:1px dashed var(--line)"></div><div style="position:absolute;left:0;right:0;top:40px;border-top:1px dashed var(--line)"></div><div style="position:absolute;left:0;right:0;bottom:0;border-top:1px solid var(--line)"></div><div style="display:flex;align-items:flex-end;gap:4px;height:80px">'+barCols+'</div></div></div>'
    +dateRow
-   +'<div class="muted" style="font-size:11px;margin-top:8px">Barres : douleur quotidienne, de 0 à 10 (trait gris = jour non renseigné). Rangée du dessus, échelle distincte (présence/absence) : <span style="color:var(--ochre)">●</span> '+lc(LBL("fast"))+' modéré ou fort · <span style="color:var(--brand)">◆</span> repas contenant un aliment suspect.</div></div>';
+   +'<div class="muted" style="font-size:11px;margin-top:8px">Barres corail : '+lc(LBL("daily"))+' (0 à 10, trait gris = non renseigné). Barres orange : '+lc(LBL("fast"))+' du jour normalisé sur 0-10 (Aucune = 0, Léger ≈ 3, Moyen ≈ 7, Fort = 10 ; pire épisode du jour). <span style="color:var(--brand)">◆</span> repas contenant un aliment suspect.</div></div>';
   if(p.foods.length>0){
     var rows=p.foods.map(function(f){ var col=f.delta>=1?"var(--alert)":f.delta<=-1?"var(--good)":"var(--muted)"; var sign=f.delta>0?"+":""; return '<div class="foodrow"><span>'+esc(f.name)+' <span class="muted" style="font-size:12px">('+f.n+'j)</span></span><span class="meta"><b style="color:'+col+'">'+sign+f.delta+'</b> <span class="muted">('+f.avgWith+' vs '+f.avgWithout+')</span></span></div>'; }).join("");
     h+='<div class="card"><div style="font-size:13px;color:var(--muted);margin-bottom:10px">'+LBL("daily")+' moyenne les jours où l\'aliment a été mangé <b>la veille ou l\'avant-veille</b>, contre les autres jours. La réaction étant lente, les repas du jour même sont ignorés. Écart positif = piste à surveiller.</div>'+rows+'</div>';

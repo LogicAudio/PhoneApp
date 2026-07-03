@@ -32,7 +32,7 @@ STRUCTURE — un tableau "entries", chaque entrée a un champ "type" :
 - type "symptom" : symptôme rapide « {{SYMPTÔME_RAPIDE}} ». {date, time, sev : 0=aucune gêne (observation explicite d'absence de symptôme) 1=léger 2=moyen 3=fort, note}
 - type "pain"    : suivi quotidien « {{SUIVI_QUOTIDIEN}} ». {date, level : 0 à 10, stiff : « {{case_du_matin}} » true/false, note}
 
-{{RÉSUMÉ}} *(bloc optionnel — « RÉSUMÉ CALCULÉ PAR L'APP (indicatif, à recouper avec les données brutes) : » suivi des suspects ballonnements avec taux et délais médians, de la douleur moyenne, et des écarts douleur par aliment J-1/J-2)*
+{{RÉSUMÉ}} *(bloc optionnel — « RÉSUMÉ CALCULÉ PAR L'APP (indicatif, à recouper avec les données brutes) : » suivi des suspects avec comptes/taux/délais médians, des associations d'aliments récurrentes avant épisodes (paires, depuis 3.28.0), du niveau quotidien moyen, et des écarts par aliment J-1/J-2)*
 
 CE QUE JE CHERCHE :
 1) {{SYMPTÔME_RAPIDE}}s : déclencheurs suspects (aliments ET sport), délai typique déclencheur -> symptôme, combinaisons à risque.
@@ -41,6 +41,7 @@ CE QUE JE CHERCHE :
 MÉTHODE :
 - Distingue corrélation et causalité ; pour chaque hypothèse, donne un niveau de confiance (faible/moyen/élevé) et le nombre d'observations qui la soutiennent.
 - Pour les symptômes rapides, raisonne aussi par familles d'aliments (FODMAP si pertinent, fermentescibles, alcool et boissons gazeuses, gras, sport post-prandial), pas seulement aliment par aliment.
+- Un épisode peut venir d'un autre aliment du même repas ou d'une association : sers-toi des statistiques d'associations fournies et des repas complets pour départager les co-suspects.
 - Ne conclus jamais sur moins de 3 observations ; dis explicitement quand les données ne suffisent pas encore.
 - Signale tout signal d'alerte qui mérite une consultation (perte de poids, sang, douleur nocturne inhabituelle, fièvre...).
 
