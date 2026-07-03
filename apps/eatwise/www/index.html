@@ -76,7 +76,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.16.1", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.17.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 
 var mem={};
@@ -102,12 +102,13 @@ function normFood(s){ s=String(s||"").trim().replace(/\s+/g," "); if(!s) return 
 function tagsFromMeal(text){ var parts=String(text||"").split(/[,;\n]+/); var seen={}, out=[]; parts.forEach(function(p){ var t=normFood(p); if(t){ var k=t.toLowerCase(); if(!seen[k]){ seen[k]=1; out.push(t); } } }); return out; }
 function tagPreviewText(text){ var t=tagsFromMeal(text); return t.length ? ("→ analysé comme : "+t.join(" · ")) : "Sépare les aliments par des virgules."; }
 
-function loadAll(){ try{ var raw=store.get(LS_KEY); if(raw){ var p=JSON.parse(raw); return {entries:Array.isArray(p.entries)?p.entries:[], analysis:(p.analysis&&p.analysis.text)?p.analysis:null}; } }catch(e){} return {entries:[], analysis:null}; }
+function loadAll(){ try{ var raw=store.get(LS_KEY); if(raw){ var p=JSON.parse(raw); return {entries:Array.isArray(p.entries)?p.entries:[], analysis:(p.analysis&&p.analysis.text)?p.analysis:null, history:Array.isArray(p.analysisHistory)?p.analysisHistory:[]}; } }catch(e){} return {entries:[], analysis:null, history:[]}; }
 
 var _init=loadAll();
 var state={
   entries:_init.entries,
   analysis:_init.analysis,
+  analysisHistory:_init.history,
   tab:"log", kind:"meal",
   date:todayISO(), time:nowHM(),
   meal:"",
@@ -117,7 +118,7 @@ var state={
   showExport:false, copied:false, imp:""
 };
 
-function saveAll(){ try{ store.set(LS_KEY,JSON.stringify({entries:state.entries, analysis:state.analysis})); }catch(e){} }
+function saveAll(){ try{ store.set(LS_KEY,JSON.stringify({entries:state.entries, analysis:state.analysis, analysisHistory:state.analysisHistory||[]})); }catch(e){} }
 function persist(next){ state.entries=next; saveAll(); }
 
 function addMeal(){
@@ -130,6 +131,12 @@ function addSymptom(){ persist([{id:uid(),type:"symptom",date:state.date,time:st
 function addSport(){ persist([{id:uid(),type:"sport",date:state.date,time:state.time,note:state.snote.trim()}].concat(state.entries)); state.snote="";state.time=nowHM();state.tab="history"; render(); }
 function addPain(){ var cleaned=state.entries.filter(function(e){return !(e.type==="pain"&&e.date===state.date);}); persist([{id:uid(),type:"pain",date:state.date,level:state.pain,stiff:state.stiff,note:state.pnote.trim()}].concat(cleaned)); state.pnote="";state.tab="history"; render(); }
 function removeEntry(id){ persist(state.entries.filter(function(e){return e.id!==id;})); render(); }
+function repeatMeal(id){
+  var src=null; for(var i=0;i<state.entries.length;i++){ if(state.entries[i].id===id){ src=state.entries[i]; break; } }
+  if(!src||src.type!=="meal") return;
+  persist([{id:uid(),type:"meal",date:todayISO(),time:nowHM(),meal:src.meal,tags:(src.tags||[]).slice()}].concat(state.entries));
+  render();
+}
 
 function buildExport(){
   var prev="";
@@ -189,7 +196,8 @@ function applyImport(parsed){
   if(parsed && typeof parsed==="object"){
     var msg=[];
     if(Array.isArray(parsed.entries)){ state.entries=parsed.entries; msg.push(parsed.entries.length+" entrées"); }
-    if("analysis" in parsed){ var a=parsed.analysis; state.analysis=(a&&a.text)?{text:a.text,date:a.date||todayISO()}:null; msg.push("analyse"); }
+    if("analysis" in parsed){ var a=parsed.analysis; var na=(a&&a.text)?{text:a.text,date:a.date||todayISO()}:null; if(na&&state.analysis&&state.analysis.text&&state.analysis.text!==na.text){ state.analysisHistory=[state.analysis].concat(state.analysisHistory||[]).slice(0,10); } state.analysis=na; msg.push("analyse"); }
+    if(Array.isArray(parsed.analysisHistory)){ state.analysisHistory=parsed.analysisHistory.slice(0,10); }
     if(msg.length){ saveAll(); render(); alert("Importé : "+msg.join(" + ")+"."); return; }
   }
   alert("Format inattendu.");
@@ -230,7 +238,7 @@ function sendToClaude(){
 function downloadBackup(){
   try{
     var slug=slugify(APP_NAME);
-    var blob=new Blob([JSON.stringify({entries:state.entries, analysis:state.analysis},null,2)],{type:"application/json"});
+    var blob=new Blob([JSON.stringify({entries:state.entries, analysis:state.analysis, analysisHistory:state.analysisHistory||[]},null,2)],{type:"application/json"});
     var url=URL.createObjectURL(blob);
     var a=document.createElement("a"); a.href=url; a.download=slug+"/data/"+slug+".json";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
@@ -347,7 +355,7 @@ function historyHTML(){
       if(e.type==="meal"){
         var tg=e.tags||[];
         var pills=(tg.length||e.sport)?'<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0">'+tg.map(function(t){return '<span class="tagpill">'+esc(t)+'</span>';}).join("")+(e.sport?'<span class="tagpill sport">Sport après</span>':'')+'</div>':'';
-        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--brand)"><span class="meta">'+esc(e.time)+' · repas</span>'+(e.meal?'<div style="font-size:15.5px;margin:6px 0 4px">'+esc(e.meal)+'</div>':'')+pills+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
+        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--brand)"><span class="meta">'+esc(e.time)+' · repas</span>'+(e.meal?'<div style="font-size:15.5px;margin:6px 0 4px">'+esc(e.meal)+'</div>':'')+pills+'<button class="delbtn" style="color:var(--brand);margin-right:18px" data-act="again" data-val="'+e.id+'">↻ Encore ce repas</button><button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
       }
       if(e.type==="sport"){
         return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--sport)"><div class="between"><span class="meta">'+esc(e.time)+' · sport</span><span style="font-size:12.5px;font-weight:600;color:var(--sport)">🏃 Sport</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
@@ -364,8 +372,15 @@ function historyHTML(){
 function analyseHTML(){
   var b=computeBloat(state.entries), p=computePain(state.entries);
   var claudeBlock='';
-  if(state.analysis && state.analysis.text){ claudeBlock='<div class="card"><span class="cardhd">Analyse de Claude</span><p class="muted" style="font-size:11.5px;margin:2px 0 8px">Établie le '+state.analysis.date+'</p>'+renderAnalysis(state.analysis.text)+'</div>'; }
-  else { claudeBlock='<div class="card muted" style="font-size:12.5px">💡 Pour une analyse détaillée (et des idées recettes) : onglet <b>Données</b> → « Analyser mes données avec Claude ».</div>'; }
+  if(state.analysis && state.analysis.text){ claudeBlock='<div class="card"><span class="cardhd">Analyse IA</span><p class="muted" style="font-size:11.5px;margin:2px 0 8px">Établie le '+state.analysis.date+'</p>'+renderAnalysis(state.analysis.text)+'</div>'; }
+  claudeBlock+='<div class="card"><span class="cardhd">'+(state.analysis?'Mettre à jour l\'analyse':'Lancer une analyse complète')+'</span><p class="muted" style="font-size:13px;margin:4px 0 12px">L\'IA lit ton carnet et rédige une analyse détaillée, avec des idées recettes.</p>'
+    +'<button class="btn brand" data-act="sendClaude">Analyser mes données avec Claude</button>'
+    +'<p class="muted" style="font-size:11.5px;margin:6px 0 14px">Ton rapport est copié et Claude s\'ouvre — si le message n\'est pas pré-rempli, fais « Coller ». Ça marche aussi avec n\'importe quelle IA (ChatGPT, Gemini…) : <span data-act="openExport" style="color:var(--brand);text-decoration:underline;cursor:pointer">affiche le rapport</span> et colle-le où tu veux.</p>'
+    +'<span class="lab">Puis colle la réponse ici</span><textarea class="field" data-field="imp" placeholder="Colle la réponse complète de l\'IA — l\'app retrouve l\'analyse toute seule." style="min-height:80px;font-size:13px">'+esc(state.imp)+'</textarea><button class="btn outline mt10" data-act="importText">Enregistrer l\'analyse</button></div>';
+  if(state.analysisHistory && state.analysisHistory.length){
+    var hist=state.analysisHistory.map(function(hh){ return '<details style="margin:6px 0"><summary style="cursor:pointer;font-size:13px;color:var(--muted)">Analyse du '+esc(hh.date)+'</summary><div style="padding:4px 0 2px">'+renderAnalysis(hh.text)+'</div></details>'; }).join("");
+    claudeBlock+='<div class="card"><span class="cardhd" style="font-size:15px">Analyses précédentes</span>'+hist+'</div>';
+  }
   var h=claudeBlock+'<div class="sectitle">Ballonnements</div>';
   if(b.avgDelay!=null) h+='<div class="card" style="background:var(--brand);color:#FFFFFF;border:none"><div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.85">Délai typique</div><div style="font-family:var(--serif);font-size:26px;font-weight:600">≈ '+b.avgDelay+' min après le déclencheur</div></div>';
   if(b.suspects.length===0) h+='<div class="card center muted">Continue d\'enregistrer tes repas et ton ressenti.</div>';
@@ -388,15 +403,12 @@ function analyseHTML(){
 
 function dataHTML(){
   var slug=slugify(APP_NAME);
-  return '<div class="card"><span class="cardhd">Analyse par Claude</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Claude lit ton carnet et met à jour l\'onglet Analyse. Deux étapes :</p>'
-  +'<div style="margin-bottom:4px"><span class="lab">Étape 1 — envoyer</span><button class="btn brand" data-act="sendClaude">Analyser mes données avec Claude</button><p class="muted" style="font-size:11.5px;margin:6px 0 14px">Tout est copié et Claude s\'ouvre : si le message n\'est pas déjà pré-rempli, fais simplement « Coller ». <span data-act="openExport" style="color:var(--brand);text-decoration:underline;cursor:pointer">Voir ce qui est envoyé</span></p></div>'
-  +'<div><span class="lab">Étape 2 — rapporter</span><textarea class="field" data-field="imp" placeholder="Colle ici la réponse complète de Claude — l\'app retrouve l\'analyse toute seule." style="min-height:96px;font-size:13px">'+esc(state.imp)+'</textarea><button class="btn outline mt10" data-act="importText">Enregistrer l\'analyse</button></div></div>'
-  +'<div class="card"><span class="cardhd">Sauvegarde</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Tes données vivent uniquement sur ce téléphone. Garde une copie de temps en temps.</p><button class="btn outline" data-act="download">Télécharger mes données (.json)</button><label style="display:block;margin-top:12px;font-size:14px;color:var(--brand);font-weight:600">Restaurer depuis une sauvegarde<input type="file" accept="application/json,.json" data-field="file" style="display:block;margin-top:6px;font-size:13px;color:var(--ink)"></label><p class="muted" style="font-size:11.5px;margin:8px 0 0">Fichier : <span class="meta">'+slug+'/data/'+slug+'.json</span> (nom fixe, écrase l\'ancien).</p></div>'
-  +'<div class="card muted" style="font-size:12.5px">'+state.entries.length+' entrées enregistrées.'+(state.analysis?' · Analyse de Claude du '+state.analysis.date+'.':' · Pas encore d\'analyse Claude.')+'</div>';
+  return '<div class="card"><span class="cardhd">Sauvegarde</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Tes données vivent uniquement sur ce téléphone. Garde une copie de temps en temps.</p><button class="btn outline" data-act="download">Télécharger mes données (.json)</button><label style="display:block;margin-top:12px;font-size:14px;color:var(--brand);font-weight:600">Restaurer depuis une sauvegarde<input type="file" accept="application/json,.json" data-field="file" style="display:block;margin-top:6px;font-size:13px;color:var(--ink)"></label><p class="muted" style="font-size:11.5px;margin:8px 0 0">Fichier : <span class="meta">'+slug+'/data/'+slug+'.json</span> (nom fixe, écrase l\'ancien).</p></div>'
+  +'<div class="card muted" style="font-size:12.5px">'+state.entries.length+' entrées enregistrées.'+(state.analysis?' · Analyse IA du '+state.analysis.date+'.':' · Pas encore d\'analyse IA.')+'</div>';
 }
 
 function exportModalHTML(){
-  return '<div class="modalbg" id="modalbg"><div class="modalbox"><div class="between" style="align-items:center;margin-bottom:10px"><b style="font-family:var(--serif);font-size:18px">Ce qui est envoyé à Claude</b><button data-act="closeExport" style="background:none;border:none;color:var(--alert);font-size:15px;cursor:pointer;font-family:var(--sans)">Fermer</button></div><p class="muted" style="font-size:13px;margin:0 0 10px">Le bloc ci-dessous (consignes + tes données) part dans une conversation Claude. Si la copie automatique échoue, appuie longuement dans le cadre → « Tout sélectionner » → « Copier ».</p><textarea class="field" readonly id="exporttext" style="min-height:220px;font-family:var(--mono);font-size:12px">'+esc(buildExport())+'</textarea><button class="btn brand mt10" data-act="copy">'+(state.copied?"Copié ✓":"Copier")+'</button></div></div>';
+  return '<div class="modalbg" id="modalbg"><div class="modalbox"><div class="between" style="align-items:center;margin-bottom:10px"><b style="font-family:var(--serif);font-size:18px">Ton rapport d\'analyse</b><button data-act="closeExport" style="background:none;border:none;color:var(--alert);font-size:15px;cursor:pointer;font-family:var(--sans)">Fermer</button></div><p class="muted" style="font-size:13px;margin:0 0 10px">Le bloc ci-dessous (consignes + tes données) se colle dans l\'IA de ton choix — Claude, ChatGPT, Gemini… Pour copier : appuie longuement dans le cadre → « Tout sélectionner » → « Copier ».</p><textarea class="field" readonly id="exporttext" style="min-height:220px;font-family:var(--mono);font-size:12px">'+esc(buildExport())+'</textarea><button class="btn brand mt10" data-act="copy">'+(state.copied?"Copié ✓":"Copier")+'</button></div></div>';
 }
 
 function bodyHTML(){
@@ -424,6 +436,7 @@ app.addEventListener("click",function(e){
   else if(act==="addSport"){ addSport(); }
   else if(act==="addPain"){ addPain(); }
   else if(act==="del"){ removeEntry(val); }
+  else if(act==="again"){ repeatMeal(val); }
   else if(act==="sendClaude"){ sendToClaude(); }
   else if(act==="openExport"){ state.showExport=true; state.copied=false; render(); }
   else if(act==="closeExport"){ state.showExport=false; render(); }
@@ -451,6 +464,9 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(function () {});
   });
 }
+try {
+  if (navigator.storage && navigator.storage.persist) { navigator.storage.persist().catch(function () {}); }
+} catch (e) {}
 </script>
 </body>
 </html>
