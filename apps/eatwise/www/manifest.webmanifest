@@ -6,9 +6,11 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F0F9F2",
-  "theme_color": "#0B8457",
+  "background_color": "#F6F7F8",
+  "theme_color": "#2EB39A",
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-2.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
 }

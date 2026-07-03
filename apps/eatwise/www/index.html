@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#0B8457" />
+<meta name="theme-color" content="#2EB39A" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="EatWise" />
 <link rel="manifest" href="manifest.webmanifest" />
-<link rel="apple-touch-icon" href="icon.svg" />
+<link rel="apple-touch-icon" href="icon-192.png" />
 <title>EatWise</title>
 <style>
 :root{
-  --bg:#F0F9F2;--paper:#FFFFFF;--ink:#1F3D33;--muted:#5C7A69;
-  --brand:#0B8457;--ochre:#E88C1E;--good:#2FB56B;--alert:#E8503C;--line:#D9EBDE;
+  --bg:#F6F7F8;--paper:#FFFFFF;--ink:#3B4249;--muted:#8A929A;
+  --brand:#2EB39A;--ochre:#F19A4D;--sport:#8C7AE6;--good:#6BC57E;--alert:#E56A73;--line:#ECEEF0;
   --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
   --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,monospace;
@@ -30,8 +30,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 .tabs{display:flex;gap:6px;margin-top:16px;margin-bottom:16px;flex-wrap:wrap}
 .tab{flex:1;min-width:70px;padding:9px 6px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--sans)}
 .tab.on{border-color:var(--brand);background:var(--brand);color:#fff}
-.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
-.seg{display:flex;gap:5px;background:#E4F2E8;padding:4px;border-radius:12px;margin-bottom:16px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(45,55,65,.05)}
+.seg{display:flex;gap:5px;background:#EEF1F2;padding:4px;border-radius:12px;margin-bottom:16px}
 .segbtn{flex:1;padding:9px 2px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:var(--sans)}
 .segbtn.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .row{display:flex;gap:10px;margin-bottom:14px}
@@ -43,17 +43,18 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 .btn.dark{background:var(--ink);color:#fff}
 .btn.alert{background:var(--alert);color:#fff}
 .btn.ochre{background:var(--ochre);color:#fff}
+.btn.sport{background:var(--sport);color:#fff}
 .btn.brand{background:var(--brand);color:#fff;font-size:15px;padding:12px}
 .btn.outline{background:transparent;border:1px solid var(--brand);color:var(--brand);font-size:15px;padding:12px}
 .mt10{margin-top:10px}
 .meta{font-family:var(--mono);font-size:13px;color:var(--muted)}
-.tagpill{font-size:12px;padding:3px 8px;border-radius:999px;background:#EAF5EE;color:var(--muted)}
-.tagpill.sport{background:#FDEBD2;color:var(--ochre)}
+.tagpill{font-size:12px;padding:3px 8px;border-radius:999px;background:#F0F2F4;color:var(--muted)}
+.tagpill.sport{background:#EFECFC;color:var(--sport)}
 .delbtn{margin-top:8px;background:none;border:none;color:var(--alert);font-size:12.5px;cursor:pointer;padding:0;font-family:var(--sans)}
 .sectitle{font-family:var(--serif);font-size:15px;color:var(--brand);font-weight:600;margin:4px 4px 8px}
 .daytitle{font-family:var(--serif);font-size:15px;color:var(--brand);font-weight:600;margin:0 4px 8px;text-transform:capitalize}
 .between{display:flex;justify-content:space-between}
-.bar{height:10px;background:#E4F2E8;border-radius:999px;overflow:hidden}
+.bar{height:10px;background:#EEF1F2;border-radius:999px;overflow:hidden}
 .barfill{height:100%;border-radius:999px}
 .daybars{display:flex;align-items:flex-end;gap:4px;height:90px;margin-top:6px}
 .daycol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px}
@@ -74,7 +75,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.15.1", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.16.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 
 var mem={};
@@ -83,7 +84,7 @@ var store={
   set:function(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem[k]=v; } }
 };
 
-var SEV=[{v:0,label:"Aucune",color:"#2FB56B"},{v:1,label:"Léger",color:"#E3B926"},{v:2,label:"Moyen",color:"#F59322"},{v:3,label:"Fort",color:"#E8503C"}];
+var SEV=[{v:0,label:"Aucune",color:"#6BC57E"},{v:1,label:"Léger",color:"#E7C04B"},{v:2,label:"Moyen",color:"#F19A4D"},{v:3,label:"Fort",color:"#E56A73"}];
 
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function nowHM(){ return new Date().toTimeString().slice(0,5); }
@@ -134,25 +135,39 @@ function buildExport(){
   if(state.analysis && state.analysis.text){
     prev="ANALYSE PRÉCÉDENTE (rédigée par toi, Claude, le "+state.analysis.date+", d'après les seules données connues alors. Elle peut être partielle ou dépassée : reconsidère-la à la lumière des données à jour ci-dessous, ne la reprends pas telle quelle) :\n"+state.analysis.text+"\n\n";
   }
-  return "Adopte la posture d'un expert en nutrition clinique et en rhumatologie, spécialisé dans les maladies inflammatoires chroniques (dont la spondylarthrite). Appuie-toi sur les données scientifiques établies ; si tu disposes de la recherche web, vérifie et cite de vraies sources récentes (ex. PubMed) — sinon n'invente AUCUNE référence et dis-le clairement. Ceci reste un suivi personnel, pas un avis médical.\n\n"
+  var b=computeBloat(state.entries), p=computePain(state.entries), sum=[];
+  if(b.avgDelay!=null) sum.push("- Délai médian déclencheur -> ballonnement : ~"+b.avgDelay+" min");
+  b.suspects.slice(0,8).forEach(function(s){ sum.push("- "+s.name+" : "+s.bad+"/"+s.total+" prises suivies d'un ballonnement ("+Math.round(s.rate*100)+"%"+(s.med!=null?", délai médian ~"+s.med+" min":"")+")"); });
+  if(p.overall!=null) sum.push("- Douleur moyenne : "+p.overall+"/10 sur "+p.count+" jours notés");
+  p.foods.slice(0,8).forEach(function(f){ sum.push("- "+f.name+" mangé la veille/avant-veille : douleur "+f.avgWith+" vs "+f.avgWithout+" sans ("+(f.delta>0?"+":"")+f.delta+", "+f.n+" jours)"); });
+  var summary=sum.length?("RÉSUMÉ CALCULÉ PAR L'APP (indicatif, à recouper avec les données brutes) :\n"+sum.join("\n")+"\n\n"):"";
+  return "Adopte la posture d'un expert en nutrition clinique et en rhumatologie, spécialisé dans les maladies inflammatoires chroniques (dont la spondylarthrite ankylosante) et les troubles digestifs fonctionnels (ballonnements, approche FODMAP). Appuie-toi sur les données scientifiques établies ; si tu disposes de la recherche web, vérifie et cite de vraies sources récentes (ex. PubMed, EULAR, Monash) — sinon n'invente AUCUNE référence et dis-le clairement. Ceci reste un suivi personnel, pas un avis médical : formule des hypothèses et des expériences prudentes à tester, jamais des prescriptions.\n\n"
 +"Voici les données de mon carnet de suivi (digestion + spondylarthrite ankylosante). Analyse-les.\n\n"
 +"STRUCTURE — un tableau \"entries\", chaque entrée a un champ \"type\" :\n"
 +"- type \"meal\"    : {date, time, meal (texte libre), tags (aliments détectés automatiquement, un par ingrédient), sport (booléen hérité, ancien flag)}\n"
 +"- type \"sport\"   : {date, time, note}. Effort physique horodaté — peut couper la digestion et déclencher un ballonnement (traité comme un déclencheur, au même titre qu'un repas).\n"
 +"- type \"symptom\" : ballonnements. {date, time, sev : 0=aucune gêne (observation explicite d'absence de symptôme) 1=léger 2=moyen 3=fort, note}\n"
 +"- type \"pain\"    : douleur quotidienne (spondylarthrite). {date, level : 0 à 10, stiff : raideur matinale true/false, note}\n\n"
++summary
 +"CE QUE JE CHERCHE :\n"
 +"1) Ballonnements : déclencheurs suspects (aliments ET sport), délai typique déclencheur -> symptôme, combinaisons à risque.\n"
-+"2) Douleurs (spondylarthrite, réaction lente) : lien entre l'alimentation de la VEILLE et de l'AVANT-VEILLE et le niveau de douleur / la raideur du matin. La douleur matinale reflète surtout les repas des jours précédents, PAS ceux du jour même — ne les associe pas.\n\n"
++"2) Douleurs (spondylarthrite, réaction lente) : lien entre l'alimentation de la VEILLE et de l'AVANT-VEILLE et le niveau de douleur / la raideur du matin. La douleur matinale reflète surtout les repas des jours précédents, PAS ceux du jour même — ne les associe pas.\n"
++"3) Des idées de repas concrets construits sur les aliments qui me réussissent.\n\n"
++"MÉTHODE :\n"
++"- Distingue corrélation et causalité ; pour chaque hypothèse, donne un niveau de confiance (faible/moyen/élevé) et le nombre d'observations qui la soutiennent.\n"
++"- Pour les ballonnements, raisonne aussi par familles d'aliments (FODMAP, fermentescibles, alcool et boissons gazeuses, gras, sport post-prandial), pas seulement aliment par aliment.\n"
++"- Ne conclus jamais sur moins de 3 observations ; dis explicitement quand les données ne suffisent pas encore.\n"
++"- Signale tout signal d'alerte qui mérite une consultation (perte de poids, sang, douleur nocturne inhabituelle, fièvre...).\n\n"
 +"CE QUE TU DOIS ME RENVOYER — deux parties distinctes :\n"
 +"PARTIE 1 — Une explication en clair, en SÉPARANT nettement :\n"
-+"   - BALLONNEMENTS (digestion) : déclencheurs suspects, délai typique, combinaisons, rôle du sport.\n"
-+"   - DOULEURS (spondylarthrite) : liens éventuels avec l'alimentation de la veille / avant-veille, en tenant compte du décalage.\n"
-+"   - SUGGESTIONS : des pistes concrètes et actionnables — quoi essayer, quoi limiter ou décaler — formulées comme des expériences prudentes à tester, jamais comme des prescriptions médicales.\n"
++"   - BALLONNEMENTS (digestion) : déclencheurs suspects, délai typique, combinaisons, rôle du sport — avec niveau de confiance.\n"
++"   - DOULEURS (spondylarthrite) : liens éventuels avec l'alimentation de la veille / avant-veille, en tenant compte du décalage — avec niveau de confiance.\n"
++"   - SUGGESTIONS : des pistes concrètes et actionnables — quoi essayer, quoi limiter ou décaler — formulées comme des expériences prudentes à tester (durée en jours, quoi noter pour pouvoir conclure), jamais comme des prescriptions médicales.\n"
++"   - IDÉES RECETTES : 2 à 3 repas simples et appétissants construits sur mes aliments bien tolérés, en évitant mes suspects du moment, avec une alternative quand un ingrédient est incertain.\n"
 +"   Reste prudent (hypothèses, jamais de causalité affirmée), signale les limites des données, propose des tests concrets.\n"
-+"PARTIE 2 — Un petit JSON contenant UNIQUEMENT l'analyse (surtout PAS les entrées), à coller dans « Importer le texte collé ». Format exact :\n"
++"PARTIE 2 — Un petit JSON contenant UNIQUEMENT l'analyse (surtout PAS les entrées), à coller dans l'app (onglet Données, étape 3). Format exact :\n"
 +"   {\"analysis\": {\"date\": \""+todayISO()+"\", \"text\": \"<synthèse CONDENSÉE>\"}}\n"
-+"   - Dans \"text\", structure avec des titres '## ' (ex. '## Ballonnements', '## Douleurs', '## Suggestions', '## Tests', '## Limites') et des puces '- ' ; sépare bien ballonnements et douleurs ; les retours à la ligne s'écrivent \\n.\n"
++"   - Dans \"text\", structure avec des titres '## ' (ex. '## Ballonnements', '## Douleurs', '## Suggestions', '## Recettes', '## Tests', '## Limites') et des puces '- ' ; sépare bien ballonnements et douleurs ; les retours à la ligne s'écrivent \\n.\n"
 +"   - L'app remplace l'analyse et garde mes données intactes.\n\n"
 +prev
 +"DONNÉES (JSON) :\n"+JSON.stringify({entries:state.entries, analysis:state.analysis},null,2);
@@ -178,10 +193,38 @@ function applyImport(parsed){
   }
   alert("Format inattendu.");
 }
+function extractJSON(raw){
+  raw=String(raw==null?"":raw).trim();
+  if(!raw) return null;
+  try{ return JSON.parse(raw); }catch(e){}
+  for(var i=0;i<raw.length;i++){
+    if(raw.charAt(i)!=="{") continue;
+    var depth=0,inStr=false,escp=false;
+    for(var j=i;j<raw.length;j++){
+      var c=raw.charAt(j);
+      if(inStr){ if(escp){ escp=false; } else if(c==="\\"){ escp=true; } else if(c==="\""){ inStr=false; } }
+      else if(c==="\""){ inStr=true; }
+      else if(c==="{"){ depth++; }
+      else if(c==="}"){ depth--; if(depth===0){ var cand=raw.slice(i,j+1); if(cand.indexOf("\"analysis\"")>=0||cand.indexOf("\"entries\"")>=0){ try{ return JSON.parse(cand); }catch(e2){} } break; } }
+    }
+  }
+  return null;
+}
 function importJSON(){
   var raw=(state.imp||"").trim(); if(!raw) return;
-  try{ var d=JSON.parse(raw); state.imp=""; applyImport(d); }
-  catch(e){ alert("JSON illisible."); }
+  var d=extractJSON(raw);
+  if(d==null){ alert("Je n'ai pas trouvé d'analyse dans ce texte. Colle la réponse complète de Claude (ou son bloc {\"analysis\": ...})."); return; }
+  state.imp=""; applyImport(d);
+}
+function sendToClaude(){
+  var txt=buildExport();
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt); }
+    else { var ta=document.createElement("textarea"); ta.value=txt; ta.style.position="fixed"; ta.style.top="0"; ta.style.opacity="0"; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); }
+  }catch(e){}
+  var url="https://claude.ai/new", q=encodeURIComponent(txt);
+  if(q.length<6000) url+="?q="+q;
+  window.open(url,"_blank");
 }
 function downloadBackup(){
   try{
@@ -274,15 +317,15 @@ function logHTML(){
   if(state.kind==="meal"){
     form='<div style="margin-bottom:6px"><label class="lab">Repas / boisson</label><input class="field" data-field="meal" value="'+esc(state.meal)+'" placeholder="ex. chou-fleur, oignon, bœuf, Hoegaarden"></div>'
       +'<div id="tagpreview" class="muted" style="font-size:12px;margin:0 0 16px">'+esc(tagPreviewText(state.meal))+'</div>'
-      +'<button class="btn dark" data-act="addMeal">Enregistrer le repas</button>';
+      +'<button class="btn brand" data-act="addMeal">Enregistrer le repas</button>';
   } else if(state.kind==="symptom"){
     var sev=SEV.map(function(l){return chipFlex(l.label,"sev",l.v,state.sev===l.v,l.color);}).join("");
     form='<div style="margin-bottom:14px"><label class="lab">Intensité</label><div style="display:flex;gap:8px">'+sev+'</div></div>'
       +'<div style="margin-bottom:16px"><label class="lab">Note</label><input class="field" data-field="note" value="'+esc(state.note)+'" placeholder="ex. ventre gonflé, gaz"></div>'
-      +'<button class="btn alert" data-act="addSymptom">Enregistrer le ballonnement</button>';
+      +'<button class="btn ochre" data-act="addSymptom">Enregistrer le ballonnement</button>';
   } else if(state.kind==="sport"){
     form='<div style="margin-bottom:16px"><label class="lab">Activité</label><input class="field" data-field="snote" value="'+esc(state.snote)+'" placeholder="ex. vélo elliptique 30 min"></div>'
-      +'<button class="btn ochre" data-act="addSport">Enregistrer le sport</button>';
+      +'<button class="btn sport" data-act="addSport">Enregistrer le sport</button>';
   } else {
     form='<div style="margin-bottom:6px"><label class="lab">Niveau de douleur (0 = rien, 10 = très fort)</label>'
       +'<input type="range" min="0" max="10" data-field="pain" value="'+state.pain+'" style="width:100%">'
@@ -305,7 +348,7 @@ function historyHTML(){
         return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--brand)"><span class="meta">'+esc(e.time)+' · repas</span>'+(e.meal?'<div style="font-size:15.5px;margin:6px 0 4px">'+esc(e.meal)+'</div>':'')+pills+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
       }
       if(e.type==="sport"){
-        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--ochre)"><div class="between"><span class="meta">'+esc(e.time)+' · sport</span><span style="font-size:12.5px;font-weight:600;color:var(--ochre)">🏃 Sport</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
+        return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid var(--sport)"><div class="between"><span class="meta">'+esc(e.time)+' · sport</span><span style="font-size:12.5px;font-weight:600;color:var(--sport)">🏃 Sport</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
       }
       if(e.type==="symptom"){ var s=null; for(var i=0;i<SEV.length;i++){ if(SEV[i].v===e.sev) s=SEV[i]; } if(!s) s=SEV[SEV.length-1];
         return '<div class="card" style="margin-bottom:10px;padding:14px;border-left:3px solid '+s.color+'"><div class="between"><span class="meta">'+esc(e.time)+' · ballonné</span><span style="font-size:12.5px;font-weight:600;color:'+s.color+'">🎈 '+s.label+'</span></div>'+(e.note?'<div class="note">'+esc(e.note)+'</div>':'')+'<button class="delbtn" data-act="del" data-val="'+e.id+'">Supprimer</button></div>';
@@ -320,6 +363,7 @@ function analyseHTML(){
   var b=computeBloat(state.entries), p=computePain(state.entries);
   var claudeBlock='';
   if(state.analysis && state.analysis.text){ claudeBlock='<div class="card"><span class="cardhd">Analyse de Claude</span><p class="muted" style="font-size:11.5px;margin:2px 0 8px">Établie le '+state.analysis.date+'</p>'+renderAnalysis(state.analysis.text)+'</div>'; }
+  else { claudeBlock='<div class="card muted" style="font-size:12.5px">💡 Pour une analyse détaillée (et des idées recettes) : onglet <b>Données</b> → « Envoyer mes données à Claude ».</div>'; }
   var h=claudeBlock+'<div class="sectitle">Ballonnements</div>';
   if(b.avgDelay!=null) h+='<div class="card" style="background:var(--brand);color:#FFFFFF;border:none"><div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.85">Délai typique</div><div style="font-family:var(--serif);font-size:26px;font-weight:600">≈ '+b.avgDelay+' min après le déclencheur</div></div>';
   if(b.suspects.length===0) h+='<div class="card center muted">Continue d\'enregistrer tes repas et ton ressenti.</div>';
@@ -328,7 +372,7 @@ function analyseHTML(){
   });
   h+='<div class="sectitle" style="margin-top:18px">Douleurs (spondylarthrite)</div>';
   if(p.count===0){ h+='<div class="card center muted">Note ton ressenti chaque jour pour voir la courbe et les liens.</div>'; return h; }
-  var bars=p.days.map(function(d){ var hh=d.level==null?0:Math.max(3,(d.level/10)*80); return '<div class="daycol"><div class="dayfill" style="height:'+hh+'px;background:'+(d.level==null?"#DDEDE2":"var(--alert)")+'"></div><span class="dayx">'+d.iso.slice(8,10)+'</span></div>'; }).join("");
+  var bars=p.days.map(function(d){ var hh=d.level==null?0:Math.max(3,(d.level/10)*80); return '<div class="daycol"><div class="dayfill" style="height:'+hh+'px;background:'+(d.level==null?"#E8EBED":"var(--alert)")+'"></div><span class="dayx">'+d.iso.slice(8,10)+'</span></div>'; }).join("");
   h+='<div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:2px">14 derniers jours · moyenne '+(p.overall!=null?p.overall:"—")+'/10</div><div class="daybars">'+bars+'</div></div>';
   if(p.foods.length>0){
     var rows=p.foods.map(function(f){ var col=f.delta>=1?"var(--alert)":f.delta<=-1?"var(--good)":"var(--muted)"; var sign=f.delta>0?"+":""; return '<div class="foodrow"><span>'+esc(f.name)+' <span class="muted" style="font-size:12px">('+f.n+'j)</span></span><span class="meta"><b style="color:'+col+'">'+sign+f.delta+'</b> <span class="muted">('+f.avgWith+' vs '+f.avgWithout+')</span></span></div>'; }).join("");
@@ -342,13 +386,15 @@ function analyseHTML(){
 
 function dataHTML(){
   var slug=slugify(APP_NAME);
-  return '<div class="card"><span class="cardhd">Sauvegarde & analyse</span><p class="muted" style="font-size:13px">Exporte un bloc (prompt + données) à coller dans Claude Opus pour l\'analyse détaillée, ou télécharge un fichier .json comme sauvegarde.</p><button class="btn brand" data-act="openExport">Exporter pour analyse</button><button class="btn outline mt10" data-act="download">Télécharger la sauvegarde (.json)</button><p class="muted" style="font-size:11.5px;margin:8px 0 0">Fichier : <span class="meta">'+slug+'/data/'+slug+'.json</span> (nom fixe, écrase l\'ancien). Selon le navigateur, le sous-dossier peut être aplati.</p></div>'
-  +'<div class="card"><span class="cardhd">Importer</span><p class="muted" style="font-size:13px">Colle le JSON que Claude te renvoie (analyse seule, ou données complètes), ou restaure depuis un fichier .json.</p><label style="display:block;margin-bottom:12px;font-size:14px;color:var(--brand);font-weight:600">Depuis un fichier<input type="file" accept="application/json,.json" data-field="file" style="display:block;margin-top:6px;font-size:13px;color:var(--ink)"></label><textarea class="field" data-field="imp" placeholder=\'{"analysis":{ ... }}  ou  {"entries":[ ... ]}\' style="min-height:110px;font-family:var(--mono);font-size:12.5px">'+esc(state.imp)+'</textarea><button class="btn outline mt10" data-act="importText">Importer le texte collé</button></div>'
-  +'<div class="card muted" style="font-size:12.5px">'+state.entries.length+' entrées enregistrées.'+(state.analysis?' · Analyse du '+state.analysis.date+'.':'')+'</div>';
+  return '<div class="card"><span class="cardhd">Analyse par Claude</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Claude lit ton carnet et met à jour l\'onglet Analyse. Deux étapes :</p>'
+  +'<div style="margin-bottom:4px"><span class="lab">Étape 1 — envoyer</span><button class="btn brand" data-act="sendClaude">Envoyer mes données à Claude</button><p class="muted" style="font-size:11.5px;margin:6px 0 14px">Tout est copié et Claude s\'ouvre : si le message n\'est pas déjà pré-rempli, fais simplement « Coller ». <span data-act="openExport" style="color:var(--brand);text-decoration:underline;cursor:pointer">Voir ce qui est envoyé</span></p></div>'
+  +'<div><span class="lab">Étape 2 — rapporter</span><textarea class="field" data-field="imp" placeholder="Colle ici la réponse complète de Claude — l\'app retrouve l\'analyse toute seule." style="min-height:96px;font-size:13px">'+esc(state.imp)+'</textarea><button class="btn outline mt10" data-act="importText">Enregistrer l\'analyse</button></div></div>'
+  +'<div class="card"><span class="cardhd">Sauvegarde</span><p class="muted" style="font-size:13px;margin:4px 0 12px">Tes données vivent uniquement sur ce téléphone. Garde une copie de temps en temps.</p><button class="btn outline" data-act="download">Télécharger mes données (.json)</button><label style="display:block;margin-top:12px;font-size:14px;color:var(--brand);font-weight:600">Restaurer depuis une sauvegarde<input type="file" accept="application/json,.json" data-field="file" style="display:block;margin-top:6px;font-size:13px;color:var(--ink)"></label><p class="muted" style="font-size:11.5px;margin:8px 0 0">Fichier : <span class="meta">'+slug+'/data/'+slug+'.json</span> (nom fixe, écrase l\'ancien).</p></div>'
+  +'<div class="card muted" style="font-size:12.5px">'+state.entries.length+' entrées enregistrées.'+(state.analysis?' · Analyse de Claude du '+state.analysis.date+'.':' · Pas encore d\'analyse Claude.')+'</div>';
 }
 
 function exportModalHTML(){
-  return '<div class="modalbg" id="modalbg"><div class="modalbox"><div class="between" style="align-items:center;margin-bottom:10px"><b style="font-family:var(--serif);font-size:18px">Exporter pour analyse</b><button data-act="closeExport" style="background:none;border:none;color:var(--alert);font-size:15px;cursor:pointer;font-family:var(--sans)">Fermer</button></div><p class="muted" style="font-size:13px;margin:0 0 10px">Copie tout ce bloc et colle-le dans une conversation Claude (Opus). Si le bouton ne copie pas, appuie longuement dans le cadre → « Tout sélectionner » → « Copier ».</p><textarea class="field" readonly id="exporttext" style="min-height:220px;font-family:var(--mono);font-size:12px">'+esc(buildExport())+'</textarea><button class="btn brand mt10" data-act="copy">'+(state.copied?"Copié ✓":"Copier")+'</button></div></div>';
+  return '<div class="modalbg" id="modalbg"><div class="modalbox"><div class="between" style="align-items:center;margin-bottom:10px"><b style="font-family:var(--serif);font-size:18px">Ce qui est envoyé à Claude</b><button data-act="closeExport" style="background:none;border:none;color:var(--alert);font-size:15px;cursor:pointer;font-family:var(--sans)">Fermer</button></div><p class="muted" style="font-size:13px;margin:0 0 10px">Le bloc ci-dessous (consignes + tes données) part dans une conversation Claude. Si la copie automatique échoue, appuie longuement dans le cadre → « Tout sélectionner » → « Copier ».</p><textarea class="field" readonly id="exporttext" style="min-height:220px;font-family:var(--mono);font-size:12px">'+esc(buildExport())+'</textarea><button class="btn brand mt10" data-act="copy">'+(state.copied?"Copié ✓":"Copier")+'</button></div></div>';
 }
 
 function bodyHTML(){
@@ -376,6 +422,7 @@ app.addEventListener("click",function(e){
   else if(act==="addSport"){ addSport(); }
   else if(act==="addPain"){ addPain(); }
   else if(act==="del"){ removeEntry(val); }
+  else if(act==="sendClaude"){ sendToClaude(); }
   else if(act==="openExport"){ state.showExport=true; state.copied=false; render(); }
   else if(act==="closeExport"){ state.showExport=false; render(); }
   else if(act==="copy"){ copyExport(); }

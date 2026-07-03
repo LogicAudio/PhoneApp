@@ -21,7 +21,7 @@ Application personnelle de suivi santé : **digestion (ballonnements)** + **doul
 - Slogan/identité : « EatWise — Eat wise, feel nice. » Titre : « Écoute ton corps, parle à ton assiette. » Sous-titre : « Observe, comprends, ajuste — et sens-toi mieux. »
 
 ## État actuel
-- **Un seul fichier `index.html`**, version **3.15.1** (voir `VERSION` dans le code, affichée dans le footer). 3.14.0 = 3.13.0 + câblage PWA (manifest, service worker, icône). 3.15.0 = intensité « Aucune » (sev 0) pour les ballonnements. 3.15.1 = palette rafraîchie (émeraude/menthe/corail) + icône cœur-dans-l'assiette — les fichiers déployés dans `www/` font foi sur l'annexe ci-dessous pour les couleurs.
+- **Un seul fichier `index.html`**, version **3.16.0** (voir `VERSION` dans le code, affichée dans le footer). Historique : 3.14.0 = câblage PWA · 3.15.0 = intensité « Aucune » (sev 0) · 3.15.1 = première retouche palette · **3.16.0** = palette type « Gluci-Chek » (fond `#F6F7F8`, une couleur par fonction : Mangé sarcelle `#2EB39A`, Ballonné orange, Douleur corail, Sport violet), onglet Données en deux étapes sans jargon (bouton « Envoyer mes données à Claude » : copie + ouverture `claude.ai/new?q=` si l'URL encodée tient sous ~6 000 caractères, sinon collage manuel ; import tolérant `extractJSON()`), prompt v2 (miroir réviewable : [eatwise-prompt.md](eatwise-prompt.md)), idées recettes dans la boucle d'analyse, icônes renommées `icon-2.svg` + `icon-192/512.png` (anti-cache WebAPK Android : **changer l'URL de l'icône à chaque refonte**, sinon l'ancienne reste figée sur les téléphones). Les fichiers déployés dans `www/` font foi sur l'annexe ci-dessous (l'annexe = état 3.13.0 d'origine).
 - **Vanilla JS pur** : aucun framework, aucune dépendance, aucun build, aucun CDN. Tout est inline (HTML + CSS + JS). C'est un choix assumé : ça tourne hors-ligne et sans outillage.
 - Rendu maison : un objet `state`, une fonction `render()` qui régénère `#app`, délégation d'événements via attributs `data-act` / `data-field`.
 - Stockage : `localStorage` sous la clé `eatwise-v3`, avec **fallback mémoire** (`store.get/set` dans un try/catch) pour ne jamais planter en environnement restreint.
@@ -57,7 +57,7 @@ Chaque entrée de `entries` a un `type` :
 3. Claude renvoie : **PARTIE 1** une explication en français (ballonnements / douleurs / suggestions), **PARTIE 2** un petit JSON `{"analysis":{"date","text"}}` — **sans** les entrées.
 4. L'utilisateur colle ce JSON dans **Importer** → `applyImport()` met à jour l'analyse et **conserve les données**.
 
-`applyImport()` accepte trois formes : tableau brut (entries), `{entries, analysis?}`, ou `{analysis}` seul. Ne pas régresser sur ce comportement.
+`applyImport()` accepte trois formes : tableau brut (entries), `{entries, analysis?}`, ou `{analysis}` seul. Ne pas régresser sur ce comportement. Depuis 3.16.0, `extractJSON()` (en amont, onglet Données étape 2) tolère le collage de la réponse Claude **complète** : il localise le premier objet JSON équilibré contenant `"analysis"` ou `"entries"`. Le prompt est réviewable dans [eatwise-prompt.md](eatwise-prompt.md) — toute modification synchronise code + miroir dans le même commit et recale le golden `buildExport` (accord humain requis).
 
 ## Conventions de versionnement (semver strict)
 La version vit dans `var VERSION` (footer). À chaque changement, annoncer et incrémenter :
