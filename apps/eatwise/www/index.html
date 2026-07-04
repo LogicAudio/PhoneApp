@@ -88,7 +88,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.28.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.29.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 var LLM_KEY="eatwise-llm";
 var LLMS={
@@ -139,7 +139,7 @@ var state={
   pain:0, stiff:false, pnote:"",
   snote:"", recipeNote:"", editId:null,
   llm:(function(){ var v=store.get(LLM_KEY); return LLMS[v]?v:"claude"; })(),
-  showExport:false, showReport:false, copied:false, imp:""
+  showExport:false, showReport:false, copied:false, imp:"", clipOffer:null, _clipSeen:""
 };
 
 function saveAll(){ try{ store.set(LS_KEY,JSON.stringify({entries:state.entries, analysis:state.analysis, analysisHistory:state.analysisHistory||[], labels:state.labels||{}})); }catch(e){} }
@@ -306,6 +306,25 @@ function buildRecipePrompt(kind){
    +"Réponds en français, directement avec les 3 idées.";
 }
 function sendRecipe(kind){ copyAndOpenLLM(buildRecipePrompt(kind)); }
+function analysisStale(){
+  if(state.entries.length===0) return false;
+  if(!state.analysis||!state.analysis.text) return state.entries.length>=5;
+  var since=0; state.entries.forEach(function(e){ if(e.date>state.analysis.date) since++; });
+  var age=Math.round((new Date(todayISO()+"T12:00:00")-new Date(state.analysis.date+"T12:00:00"))/86400000);
+  return since>=10||age>=14;
+}
+function checkClipboardForAnalysis(){
+  try{
+    if(!(navigator.clipboard&&navigator.clipboard.readText)) return;
+    navigator.clipboard.readText().then(function(txt){
+      txt=String(txt||"");
+      if(!txt||txt===state._clipSeen) return;
+      state._clipSeen=txt;
+      var d=extractJSON(txt);
+      if(d&&d.analysis&&d.analysis.text&&(!state.analysis||state.analysis.text!==d.analysis.text)){ state.clipOffer=d; render(); }
+    }).catch(function(){});
+  }catch(e){}
+}
 function buildPhotoPrompt(){
   return "Je joins (ou je prends) une photo de mon repas dans ce message. Identifie tous les aliments et boissons visibles et réponds UNIQUEMENT par une seule ligne : les ingrédients en français, séparés par des virgules (exemple : chou-fleur, oignon, bœuf, bière). Pas de phrase d'introduction, pas de puces, pas de commentaire — je collerai cette ligne telle quelle dans mon carnet alimentaire. Si un aliment est incertain, ajoute un point d'interrogation juste après (exemple : ricotta?).";
 }
@@ -484,7 +503,7 @@ function renderAnalysis(txt){
 }
 
 function headerHTML(){ return '<header class="hdr"><div class="wrap" style="position:relative"><button data-act="tab" data-val="data" aria-label="Réglages et données" style="position:absolute;bottom:0;right:16px;background:rgba(255,255,255,.16);border:none;color:#fff;font-size:18px;line-height:1;border-radius:10px;padding:8px 12px;cursor:pointer">☰</button><div class="eyebrow">'+esc(APP_NAME)+'</div><div class="tagline">Eat wise, feel nice.</div><h1 class="h1">Écoute ton corps, parle à ton assiette.</h1><p class="sub">Observe, comprends, ajuste — et retrouve le sourire.</p></div></header>'; }
-function tabsHTML(){ var dot=painLoggedToday()?"":' <span style="color:var(--alert)">●</span>'; var tabs=[["log","Ajouter"+dot],["history","Journal"+(state.entries.length?" · "+state.entries.length:"")],["analyse","Analyse"],["recipes","Recettes"]]; return '<div class="wrap tabs">'+tabs.map(function(t){return '<button class="tab '+(state.tab===t[0]?"on":"")+'" data-act="tab" data-val="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>'; }
+function tabsHTML(){ var dot=painLoggedToday()?"":' <span style="color:var(--alert)">●</span>'; var tabs=[["log","Ajouter"+dot],["history","Journal"+(state.entries.length?" · "+state.entries.length:"")],["analyse","Analyse"+(analysisStale()?' <span style="color:var(--brand)">●</span>':"")],["recipes","Recettes"]]; return '<div class="wrap tabs">'+tabs.map(function(t){return '<button class="tab '+(state.tab===t[0]?"on":"")+'" data-act="tab" data-val="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>'; }
 function footerHTML(){ return '<footer class="foot">Données gardées sur ton téléphone. Pense à télécharger une sauvegarde. · Suivi personnel, pas un avis médical — parles-en à ton médecin. · <a href="https://buymeacoffee.com/logicaudio" target="_blank" rel="noopener" style="color:var(--brand);text-decoration:none">☕ Offre-moi un café</a> · v'+VERSION+'</footer>'; }
 
 function logHTML(){
@@ -641,7 +660,8 @@ function render(){
     document.getElementById("app").innerHTML='<div class="wrap" style="padding-top:14px"><div class="noprint" style="display:flex;gap:10px;margin-bottom:12px"><button class="btn outline" style="flex:1" data-act="closeReport">← Retour</button><button class="btn brand" style="flex:1" data-act="printReport">🖨 Imprimer / PDF</button></div>'+buildReportBody()+'</div>';
     return;
   }
-  document.getElementById("app").innerHTML=headerHTML()+tabsHTML()+'<main class="wrap">'+bodyHTML()+'</main>'+footerHTML()+(state.showExport?exportModalHTML():"");
+  var clipBanner=state.clipOffer?'<div class="wrap"><div class="card" style="border-left:3px solid var(--brand);display:flex;align-items:center;gap:10px;padding:12px 16px"><span style="flex:1;font-size:13.5px">📋 Une analyse a été détectée dans ton presse-papier.</span><button class="delbtn" style="margin:0;color:var(--brand);font-weight:700" data-act="clipYes">Enregistrer</button><button class="delbtn" style="margin:0" data-act="clipNo">Ignorer</button></div></div>':"";
+  document.getElementById("app").innerHTML=headerHTML()+tabsHTML()+clipBanner+'<main class="wrap">'+bodyHTML()+'</main>'+footerHTML()+(state.showExport?exportModalHTML():"");
 }
 
 var app=document.getElementById("app");
@@ -650,7 +670,7 @@ app.addEventListener("click",function(e){
   if(e.target.id==="exporttext"){ e.target.select(); return; }
   var el=e.target.closest("[data-act]"); if(!el) return;
   var act=el.getAttribute("data-act"), val=el.getAttribute("data-val");
-  if(act==="tab"){ state.tab=val; render(); }
+  if(act==="tab"){ state.tab=val; if(val==="analyse") checkClipboardForAnalysis(); render(); }
   else if(act==="kind"){ state.editId=null; state.kind=val; render(); }
   else if(act==="sev"){ state.sev=+val; render(); }
   else if(act==="stiff"){ state.stiff=!state.stiff; render(); }
@@ -668,6 +688,8 @@ app.addEventListener("click",function(e){
   else if(act==="sendClaude"){ sendToClaude(); }
   else if(act==="recipe"){ sendRecipe(val); }
   else if(act==="photoMeal"){ copyAndOpenLLM(buildPhotoPrompt()); }
+  else if(act==="clipYes"){ var co=state.clipOffer; state.clipOffer=null; if(co){ state.tab="analyse"; applyImport(co); } }
+  else if(act==="clipNo"){ state.clipOffer=null; render(); }
   else if(act==="llm"){ state.llm=val; store.set(LLM_KEY,val); render(); }
   else if(act==="openExport"){ state.showExport=true; state.copied=false; render(); }
   else if(act==="closeExport"){ state.showExport=false; render(); }
@@ -700,6 +722,10 @@ if ("serviceWorker" in navigator) {
 }
 try {
   if (navigator.storage && navigator.storage.persist) { navigator.storage.persist().catch(function () {}); }
+} catch (e) {}
+try {
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) checkClipboardForAnalysis(); });
+  window.addEventListener("focus", function () { checkClipboardForAnalysis(); });
 } catch (e) {}
 </script>
 </body>
