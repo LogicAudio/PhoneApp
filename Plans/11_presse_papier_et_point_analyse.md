@@ -1,6 +1,5 @@
 ---
-status: in-progress
-priority: now
+status: done
 ---
 
 # Plan 11 — Import presse-papier (si ça marche) + point de rappel d'analyse
@@ -20,16 +19,16 @@ MINOR 3.29.0. Deux contraintes de conception posées par Thomas :
   l'analyse est « périmée » : aucune analyse et ≥ 5 entrées, ou ≥ 10 entrées plus récentes
   qu'elle, ou analyse vieille de ≥ 14 jours.
 
-## P11.1 — Bannière presse-papier · SAFE · medium · ⏳
+## P11.1 — Bannière presse-papier · SAFE · medium · ✅ DONE
 
 Au retour dans l'app (visibilitychange/focus) et à l'ouverture de l'onglet Analyse : tentative
 de lecture silencieuse ; si un bloc `{"analysis"...}` différent de l'analyse courante est
 trouvé → bannière sous les onglets avec [Enregistrer] / [Ignorer]. Import via `applyImport`
 existant (golden intact).
 
-## P11.2 — Point « analyse à rafraîchir » · SAFE · low · ⏳
+## P11.2 — Point « analyse à rafraîchir » · SAFE · low · ✅ DONE
 
 `analysisStale()` + point sur l'onglet Analyse (distinct du point corail « douleur non notée »
 sur Ajouter).
 
-## P11.3 — Gate + déploiement · SAFE · low · ⏳
+## P11.3 — Gate + déploiement · SAFE · low · ✅ DONE (3.29.0 en prod)

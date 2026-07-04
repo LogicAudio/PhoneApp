@@ -62,3 +62,9 @@ affichées dans Analyse et injectées dans le RÉSUMÉ du prompt (consigne « d�
 co-suspects », golden recalé) — l'analyseur maison voulu par Thomas. Ballonnement normalisé
 0-10 en barres groupées sur les deux graphes. En production (665f4cc) après une série
 d'échecs deploy-pages côté GitHub, résorbés par relances automatiques de la boucle.
+
+## 2026-07-04 — Plan 11 done: EatWise 3.29.0 (presse-papier + point d'analyse)
+Bannière « Analyse détectée dans le presse-papier — Enregistrer / Ignorer » au retour dans
+l'app (échec de permission silencieux, jamais d'import automatique, jamais re-proposé) et
+point sarcelle sur l'onglet Analyse quand l'analyse est périmée (aucune + >=5 entrées, >=10
+nouvelles entrées, ou >=14 jours). En production (8265e26).
