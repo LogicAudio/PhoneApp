@@ -68,3 +68,8 @@ Bannière « Analyse détectée dans le presse-papier — Enregistrer / Ignorer 
 l'app (échec de permission silencieux, jamais d'import automatique, jamais re-proposé) et
 point sarcelle sur l'onglet Analyse quand l'analyse est périmée (aucune + >=5 entrées, >=10
 nouvelles entrées, ou >=14 jours). En production (8265e26).
+
+## 2026-07-08 — Plan 12 done: EatWise 3.30.0 (recettes réalistes + culture)
+Prompt recettes refondu : petit-déjeuner ultra-simple (2 min, sans cuisson), midi/soir = vrais
+plats appétissants et non une liste d'aliments sains, ancrage culturel via label additif
+`region` (défaut Belgique/France, paramétrable, garde-fou anti-porridge-anglais). En prod (d774be7).

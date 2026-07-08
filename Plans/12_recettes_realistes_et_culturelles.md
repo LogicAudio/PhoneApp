@@ -1,6 +1,5 @@
 ---
-status: in-progress
-priority: now
+status: done
 ---
 
 # Plan 12 — Recettes réalistes, ancrées culture, petit-déj express
@@ -32,4 +31,4 @@ quotidien »). Carte Personnalisation : nouveau champ libre. Injecté dans le pr
 - Garde les contraintes santé existantes (aliments tolérés / suspects / analyse). Miroir
   `eatwise-prompt.md` synchronisé.
 
-## P12.3 — Gate + déploiement 3.30.0 · SAFE · low · ⏳ gate en cours
+## P12.3 — Gate + déploiement 3.30.0 · SAFE · low · ✅ DONE (en prod)
