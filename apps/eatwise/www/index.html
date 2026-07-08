@@ -88,7 +88,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding-botto
 <script>
 "use strict";
 
-var LS_KEY="eatwise-v3", VERSION="3.29.0", WINDOW_MS=4*60*60*1000;
+var LS_KEY="eatwise-v3", VERSION="3.30.0", WINDOW_MS=4*60*60*1000;
 var APP_NAME="EatWise";
 var LLM_KEY="eatwise-llm";
 var LLMS={
@@ -105,7 +105,7 @@ var store={
 };
 
 var SEV=[{v:0,label:"Aucune",color:"#7FC98B"},{v:1,label:"Léger",color:"#E7C04B"},{v:2,label:"Moyen",color:"#F09A4E"},{v:3,label:"Fort",color:"#E2707B"}];
-var DEFAULT_LABELS={fast:"Ballonnement",daily:"Douleur",flag:"Raideur matinale",condition:"digestion (ballonnements) et douleurs de spondylarthrite ankylosante"};
+var DEFAULT_LABELS={fast:"Ballonnement",daily:"Douleur",flag:"Raideur matinale",condition:"digestion (ballonnements) et douleurs de spondylarthrite ankylosante",region:"Belgique — cuisine belge et française du quotidien"};
 function LBL(k){ return (state.labels&&state.labels[k])||DEFAULT_LABELS[k]; }
 function lc(str){ str=String(str||""); return str.charAt(0).toLowerCase()+str.slice(1); }
 
@@ -290,20 +290,24 @@ function llmChipsHTML(){
 }
 function sendToClaude(){ copyAndOpenLLM(buildExport()); }
 function buildRecipePrompt(kind){
-  var labels={dejeuner:"déjeuner (petit-déjeuner) rapide à préparer",diner:"dîner (repas de midi)",souper:"souper (repas du soir)"};
+  var kindTxt={dejeuner:"petit-d\u00e9jeuner (matin)",diner:"d\u00eener (repas de midi)",souper:"souper (repas du soir)"};
   var b=computeBloat(state.entries), p=computePain(state.entries);
   var safe=[], avoid=[];
-  b.suspects.forEach(function(s){ if(s.name==="Sport"||s.name==="Sport après repas") return; if(s.rate>=0.5){ avoid.push(s.name+" ("+Math.round(s.rate*100)+"% de "+lc(LBL("fast"))+")"); } else if(s.rate<=0.2){ safe.push(s.name); } });
+  b.suspects.forEach(function(s){ if(s.name==="Sport"||s.name==="Sport apr\u00e8s repas") return; if(s.rate>=0.5){ avoid.push(s.name+" ("+Math.round(s.rate*100)+"% de "+lc(LBL("fast"))+")"); } else if(s.rate<=0.2){ safe.push(s.name); } });
   p.foods.forEach(function(f){ if(f.delta>=1) avoid.push(f.name+" ("+lc(LBL("daily"))+" +"+f.delta+" le lendemain/surlendemain)"); });
-  var an=(state.analysis&&state.analysis.text)?("MA DERNIÈRE ANALYSE ("+state.analysis.date+") :\n"+state.analysis.text+"\n\n"):"";
+  var an=(state.analysis&&state.analysis.text)?("MA DERNI\u00c8RE ANALYSE ("+state.analysis.date+") :\n"+state.analysis.text+"\n\n"):"";
   var wish=(state.recipeNote||"").trim();
-  return "Tu es un chef cuisinier doublé d'un nutritionniste, attentif à ma situation de santé : "+LBL("condition")+" (approche FODMAP si pertinente). Propose-moi 3 idées de "+labels[kind]+" pour aujourd'hui, simples et appétissantes.\n\n"
-   +"RÈGLES :\n- Privilégie mes aliments bien tolérés et évite mes suspects (listes ci-dessous).\n- Ingrédients courants, préparation réaliste"+(kind==="dejeuner"?" en moins de 10 minutes":"")+".\n- Pour chaque idée : nom, ingrédients, préparation en 3-5 étapes, et pourquoi elle me convient.\n- Si un ingrédient est douteux pour moi, propose une alternative.\n- Pas un avis médical : des suggestions culinaires prudentes, rien d'autre.\n\n"
-   +(safe.length?"ALIMENTS QUI ME RÉUSSISSENT :\n- "+safe.join("\n- ")+"\n\n":"")
-   +(avoid.length?"MES SUSPECTS À ÉVITER :\n- "+avoid.join("\n- ")+"\n\n":"")
+  var regle = (kind==="dejeuner")
+    ? "- FORMAT MATIN : ultra simple, pr\u00eat en 2 minutes, SANS cuisson (ou presque). Le geste doit \u00eatre \u00e9vident : verser des c\u00e9r\u00e9ales, tartiner, ouvrir un yaourt, couper un fruit. PAS de plat \u00e9labor\u00e9 le matin."
+    : "- Des VRAIS plats app\u00e9tissants, du genre qu'on mange vraiment \u00e0 ce repas \u2014 pas une simple liste d'aliments sains pos\u00e9s ensemble. Ingr\u00e9dients qu'on trouve au supermarch\u00e9 du coin, pr\u00e9paration r\u00e9aliste.";
+  return "Tu es un cuisinier du quotidien doubl\u00e9 d'un nutritionniste, attentif \u00e0 ma situation de sant\u00e9 : "+LBL("condition")+" (approche FODMAP si pertinente). Propose-moi 3 id\u00e9es de "+kindTxt[kind]+" pour aujourd'hui.\n\n"
+   +"RESTE DANS MA CULTURE CULINAIRE : "+LBL("region")+". Propose des choses que je mange vraiment ici ; \u00e9vite les plats exotiques ou \u00e9trangers \u00e0 mes habitudes (par exemple : pas de porridge ni de plats typiquement anglais si je suis belge).\n\n"
+   +"R\u00c8GLES :\n"+regle+"\n- Privil\u00e9gie mes aliments bien tol\u00e9r\u00e9s et \u00e9vite mes suspects (listes ci-dessous).\n- Pour chaque id\u00e9e : nom, ingr\u00e9dients, pr\u00e9paration en \u00e9tapes courtes, et pourquoi elle me convient.\n- Si un ingr\u00e9dient est douteux pour moi, propose une alternative.\n- Pas un avis m\u00e9dical : des suggestions culinaires prudentes, rien d'autre.\n\n"
+   +(safe.length?"ALIMENTS QUI ME R\u00c9USSISSENT :\n- "+safe.join("\n- ")+"\n\n":"")
+   +(avoid.length?"MES SUSPECTS \u00c0 \u00c9VITER :\n- "+avoid.join("\n- ")+"\n\n":"")
    +(wish?"MES ENVIES / CONTRAINTES DU JOUR : "+wish+"\n\n":"")
    +an
-   +"Réponds en français, directement avec les 3 idées.";
+   +"R\u00e9ponds en fran\u00e7ais, directement avec les 3 id\u00e9es.";
 }
 function sendRecipe(kind){ copyAndOpenLLM(buildRecipePrompt(kind)); }
 function analysisStale(){
@@ -639,7 +643,8 @@ function dataHTML(){
   +'<label class="lab">Symptôme rapide (défaut : Ballonnement)</label><input class="field" data-field="lblFast" value="'+esc((state.labels||{}).fast||"")+'" placeholder="Ballonnement" style="margin-bottom:10px">'
   +'<label class="lab">Suivi quotidien 0-10 (défaut : Douleur)</label><input class="field" data-field="lblDaily" value="'+esc((state.labels||{}).daily||"")+'" placeholder="Douleur" style="margin-bottom:10px">'
   +'<label class="lab">Case du matin (défaut : Raideur matinale)</label><input class="field" data-field="lblFlag" value="'+esc((state.labels||{}).flag||"")+'" placeholder="Raideur matinale" style="margin-bottom:10px">'
-  +'<label class="lab">Décris ton problème de santé (transmis à l\'IA)</label><textarea class="field" data-field="lblCond" placeholder="ex. '+esc(DEFAULT_LABELS.condition)+'" style="min-height:76px;font-size:14px">'+esc((state.labels||{}).condition||"")+'</textarea><p class="muted" style="font-size:11.5px;margin:6px 0 0">Sois précis : symptômes, localisation, ancienneté, diagnostics posés… L\'IA s\'en sert pour cibler la spécialité et les bonnes références.</p></div>'
+  +'<label class="lab">Décris ton problème de santé (transmis à l\'IA)</label><textarea class="field" data-field="lblCond" placeholder="ex. '+esc(DEFAULT_LABELS.condition)+'" style="min-height:76px;font-size:14px">'+esc((state.labels||{}).condition||"")+'</textarea><p class="muted" style="font-size:11.5px;margin:6px 0 0">Sois précis : symptômes, localisation, ancienneté, diagnostics posés… L\'IA s\'en sert pour cibler la spécialité et les bonnes références.</p>'
+  +'<label class="lab">Ma culture culinaire (pour les recettes)</label><input class="field" data-field="lblRegion" value="'+esc((state.labels||{}).region||"")+'" placeholder="'+esc(DEFAULT_LABELS.region)+'"></div>'
   +'<div class="card"><span class="cardhd">Soutenir EatWise ☕</span><p class="muted" style="font-size:13px;margin:4px 0 12px">EatWise est gratuite et sans publicité. Si elle t\'aide, tu peux offrir un café à son créateur.</p><a class="btn outline" style="display:block;text-align:center;text-decoration:none" href="https://buymeacoffee.com/logicaudio" target="_blank" rel="noopener">☕ Buy me a coffee</a></div>'
   +'<div class="card muted" style="font-size:12.5px">'+state.entries.length+' entrées enregistrées.'+(state.analysis?' · Analyse IA du '+state.analysis.date+'.':' · Pas encore d\'analyse IA.')+'</div>';
 }
@@ -702,7 +707,7 @@ app.addEventListener("input",function(e){
   var f=el.getAttribute("data-field");
   if(f==="pain"){ state.pain=+el.value; var pv=document.getElementById("painval"); if(pv) pv.textContent=el.value; return; }
   if(f==="meal"){ state.meal=el.value; var tp=document.getElementById("tagpreview"); if(tp) tp.textContent=tagPreviewText(el.value); return; }
-  if(f==="lblFast"||f==="lblDaily"||f==="lblFlag"||f==="lblCond"){ var lk={lblFast:"fast",lblDaily:"daily",lblFlag:"flag",lblCond:"condition"}[f]; state.labels=state.labels||{}; if(el.value.trim()){ state.labels[lk]=el.value.trim(); } else { delete state.labels[lk]; } saveAll(); return; }
+  if(f==="lblFast"||f==="lblDaily"||f==="lblFlag"||f==="lblCond"||f==="lblRegion"){ var lk={lblFast:"fast",lblDaily:"daily",lblFlag:"flag",lblCond:"condition",lblRegion:"region"}[f]; state.labels=state.labels||{}; if(el.value.trim()){ state.labels[lk]=el.value.trim(); } else { delete state.labels[lk]; } saveAll(); return; }
   state[f]=el.value;
 });
 app.addEventListener("change",function(e){

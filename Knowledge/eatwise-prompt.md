@@ -87,7 +87,13 @@ DONNÉES (JSON) :
 > aliments bien tolérés (taux ballonnements ≤ 20 %), suspects (taux ≥ 50 % ou douleur +1 à
 > J+1/J+2), envies du jour (champ libre optionnel), dernière analyse si présente.
 
-Tu es un chef cuisinier doublé d'un nutritionniste, attentif à ma situation de santé : {{SITUATION}} (approche FODMAP si pertinente). Propose-moi 3 idées de {{TYPE_DE_REPAS}} pour aujourd'hui, simples et appétissantes.
+Tu es un cuisinier du quotidien doublé d'un nutritionniste, attentif à ma situation de santé : {{SITUATION}} (approche FODMAP si pertinente). Propose-moi 3 idées de {{TYPE_DE_REPAS}} pour aujourd'hui.
+
+RESTE DANS MA CULTURE CULINAIRE : {{RÉGION}} (défaut : Belgique — cuisine belge et française). Évite les plats exotiques ou étrangers à mes habitudes (ex. pas de porridge ni de plats typiquement anglais pour un Belge).
+
+RÈGLES SELON LE REPAS :
+- Petit-déjeuner : ULTRA simple, prêt en 2 minutes, sans cuisson (verser des céréales, tartiner, yaourt, fruit). Pas de plat élaboré le matin.
+- Midi / soir : de VRAIS plats appétissants qu'on mange vraiment, pas une liste d'aliments sains juxtaposés ; ingrédients du supermarché du coin. pour aujourd'hui, simples et appétissantes.
 
 RÈGLES :
 - Privilégie mes aliments bien tolérés et évite mes suspects (listes ci-dessous).
